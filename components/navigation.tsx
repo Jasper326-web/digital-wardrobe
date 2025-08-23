@@ -4,6 +4,7 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
+import { UserAvatar } from "./user-avatar"
 
 const navItems = [
   { href: "/wardrobe", label: "My Wardrobe" },
@@ -74,24 +75,30 @@ export function Navigation({ onProtectedLinkClick }: NavigationProps) {
             </div>
           </div>
 
-          {/* Mobile menu */}
-          <div className="md:hidden">
-            <div className="flex items-center space-x-4">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={(e) => handleLinkClick(e, item.href)}
-                  className={cn(
-                    "px-2 py-1 rounded text-xs font-medium transition-all duration-200 text-gray-900 hover:text-emerald-600 hover:bg-gray-100/50",
-                    pathname === item.href
-                      ? "bg-gray-100/50 text-emerald-600"
-                      : "text-gray-900/90 hover:text-emerald-600",
-                  )}
-                >
-                  {item.label}
-                </Link>
-              ))}
+          {/* User Avatar and Mobile menu */}
+          <div className="flex items-center space-x-4">
+            {/* User Avatar */}
+            {isLoggedIn && <UserAvatar />}
+            
+            {/* Mobile menu */}
+            <div className="md:hidden">
+              <div className="flex items-center space-x-4">
+                {navItems.map((item) => (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={(e) => handleLinkClick(e, item.href)}
+                    className={cn(
+                      "px-2 py-1 rounded text-xs font-medium transition-all duration-200 text-gray-900 hover:text-emerald-600 hover:bg-gray-100/50",
+                      pathname === item.href
+                        ? "bg-gray-100/50 text-emerald-600"
+                        : "text-gray-900/90 hover:text-emerald-600",
+                    )}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+              </div>
             </div>
           </div>
         </div>
