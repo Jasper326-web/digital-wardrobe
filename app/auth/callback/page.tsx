@@ -12,22 +12,50 @@ export default function AuthCallback() {
       try {
         console.log('Processing auth callback...')
         
-        // 处理认证回调
-        const { data, error } = await supabase.auth.getSession()
+        // 首先尝试从URL中获取认证代码
+        const urlParams = new URLSearchParams(window.location.search)
+        const code = urlParams.get('code')
+        const error = urlParams.get('error')
+        const errorDescription = urlParams.get('error_description')
+        
+        console.log('URL params:', { code: !!code, error, errorDescription })
         
         if (error) {
-          console.error('Auth callback error:', error)
+          console.error('Auth error from URL:', error, errorDescription)
+          router.push('/')
+          return
+        }
+        
+        if (code) {
+          // 如果有认证代码，尝试交换session
+          console.log('Exchanging code for session...')
+          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
+          
+          if (exchangeError) {
+            console.error('Code exchange error:', exchangeError)
+            router.push('/')
+            return
+          }
+          
+          console.log('Code exchange successful:', data)
+        }
+        
+        // 获取当前session
+        const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+        
+        if (sessionError) {
+          console.error('Session error:', sessionError)
           router.push('/')
           return
         }
 
-        console.log('Auth session data:', data)
+        console.log('Auth session data:', { session: !!session, user: session?.user?.email })
 
-        if (data.session) {
-          console.log('User authenticated:', data.session.user.email)
+        if (session) {
+          console.log('User authenticated:', session.user.email)
           
           // 设置我们的认证cookie
-          document.cookie = `dw_auth=1; path=/; max-age=86400`
+          document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
           
           // 等待一下确保cookie设置完成
           await new Promise(resolve => setTimeout(resolve, 100))

@@ -7,8 +7,8 @@ export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     persistSession: true,
     autoRefreshToken: true,
-    // 禁用自动认证UI
-    detectSessionInUrl: false,
+    // 在生产环境中启用自动检测URL中的认证代码
+    detectSessionInUrl: true,
     flowType: 'pkce'
   },
   realtime: {
