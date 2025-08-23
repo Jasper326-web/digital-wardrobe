@@ -27,49 +27,35 @@ export default function AnalyticsPage() {
 
   // 加载分析数据
   const loadAnalyticsData = async () => {
+    setIsLoading(true)
+    setError(null)
+    
     try {
-      setIsLoading(true)
-      setError(null)
+      const dbItems = await getClothingItems()
       
-      // 首先检查Supabase连接
-      const isConnected = await checkSupabaseConnection()
-      if (!isConnected) {
-        setError('Unable to connect to database. Please check your internet connection and try again.')
-        setItems([])
+      // 将database.ts的ClothingItem转换为analytics页面的ClothingItem格式
+      const items: ClothingItem[] = dbItems.map(dbItem => ({
+        id: dbItem.id,
+        name: dbItem.name,
+        image: dbItem.image_url,
+        usageCount: dbItem.usage_count,
+        originalPrice: dbItem.original_price,
+        tags: dbItem.tags,
+        category: dbItem.category,
+        user_id: dbItem.user_id
+      }))
+      
+      setItems(items)
+    } catch (error) {
+      console.error('Failed to load analytics data:', error)
+      
+      // 如果是认证过期错误，重定向到首页
+      if (error instanceof Error && error.message === 'AUTH_EXPIRED') {
+        window.location.href = '/'
         return
       }
       
-      console.log('Starting to load analytics data...')
-      const [tops, pants, shoes] = await Promise.all([
-        getClothingItems('tops'),
-        getClothingItems('pants'),
-        getClothingItems('shoes')
-      ])
-
-      const mapDbItem = (dbItem: any): ClothingItem => ({
-        id: dbItem.id,
-        name: dbItem.name,
-        image: dbItem.image_url || "",
-        usageCount: dbItem.usage_count,
-        originalPrice: dbItem.original_price,
-        tags: dbItem.tags || [],
-        category: dbItem.category,
-        user_id: dbItem.user_id
-      })
-
-      const allItems = [
-        ...tops.map(mapDbItem),
-        ...pants.map(mapDbItem),
-        ...shoes.map(mapDbItem)
-      ]
-
-      console.log(`Loaded ${allItems.length} items for analytics`)
-      setItems(allItems)
-      
-    } catch (error) {
-      console.error('Failed to load analytics data:', error)
       setError('Failed to load analytics data. Please try again.')
-      setItems([])
     } finally {
       setIsLoading(false)
     }

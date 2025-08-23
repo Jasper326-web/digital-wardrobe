@@ -25,12 +25,20 @@ export const getClothingItems = async (): Promise<ClothingItem[]> => {
       
       if (authError) {
         console.error('Auth error:', authError)
-        throw new Error('Authentication failed')
+        // 清除过期的认证cookie
+        if (typeof document !== 'undefined') {
+          document.cookie = "dw_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+        }
+        throw new Error('AUTH_EXPIRED')
       }
 
       if (!user) {
         console.error('No authenticated user found')
-        throw new Error('User not authenticated')
+        // 清除过期的认证cookie
+        if (typeof document !== 'undefined') {
+          document.cookie = "dw_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+        }
+        throw new Error('AUTH_EXPIRED')
       }
 
       console.log('Authenticated user:', user.id)
@@ -50,6 +58,11 @@ export const getClothingItems = async (): Promise<ClothingItem[]> => {
     } catch (error) {
       retryCount++
       console.error(`Attempt ${retryCount} failed:`, error)
+      
+      // 如果是认证过期错误，直接抛出，不重试
+      if (error instanceof Error && error.message === 'AUTH_EXPIRED') {
+        throw error
+      }
       
       if (retryCount >= maxRetries) {
         throw error

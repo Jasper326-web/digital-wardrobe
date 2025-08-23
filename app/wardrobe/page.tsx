@@ -40,48 +40,41 @@ export default function WardrobePage() {
   }, [])
 
   const loadItems = async () => {
+    setIsLoading(true)
+    setError(null)
+    
     try {
-      setIsLoading(true)
-      setError(null)
+      const dbItems = await getClothingItems()
       
-      // 首先检查Supabase连接
-      const isConnected = await checkSupabaseConnection()
-      if (!isConnected) {
-        setError('Unable to connect to database. Please check your internet connection and try again.')
-        setItems({ tops: [], pants: [], shoes: [] })
-        return
-      }
-      
-      console.log('Starting to load wardrobe items...')
-      const [tops, pants, shoes] = await Promise.all([
-        getClothingItems('tops'),
-        getClothingItems('pants'),
-        getClothingItems('shoes')
-      ])
-
-      const mapDbItem = (dbItem: any) => ({
+      // 将database.ts的ClothingItem转换为wardrobe页面的ClothingItem格式
+      const mapDbItem = (dbItem: DBClothingItem): ClothingItem => ({
         id: dbItem.id,
         name: dbItem.name,
-        image: dbItem.image_url || "",
+        image: dbItem.image_url,
         usageCount: dbItem.usage_count,
         originalPrice: dbItem.original_price,
         tags: dbItem.tags,
         user_id: dbItem.user_id
       })
-
-      const mappedItems = {
-        tops: tops.map(mapDbItem),
-        pants: pants.map(mapDbItem),
-        shoes: shoes.map(mapDbItem)
-      }
-
-      console.log(`Loaded ${tops.length + pants.length + shoes.length} wardrobe items`)
-      setItems(mappedItems)
       
+      // 按类别组织数据
+      const organizedItems = {
+        tops: dbItems.filter(item => item.category === 'tops').map(mapDbItem),
+        pants: dbItems.filter(item => item.category === 'pants').map(mapDbItem),
+        shoes: dbItems.filter(item => item.category === 'shoes').map(mapDbItem)
+      }
+      
+      setItems(organizedItems)
     } catch (error) {
       console.error('Failed to load items:', error)
-      setError('Failed to load wardrobe items. Please try again.')
-      setItems({ tops: [], pants: [], shoes: [] })
+      
+      // 如果是认证过期错误，重定向到首页
+      if (error instanceof Error && error.message === 'AUTH_EXPIRED') {
+        window.location.href = '/'
+        return
+      }
+      
+      setError('Failed to load items. Please try again.')
     } finally {
       setIsLoading(false)
     }
