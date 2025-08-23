@@ -1,0 +1,101 @@
+"use client"
+
+import Link from "next/link"
+import { usePathname } from "next/navigation"
+import { useState, useEffect } from "react"
+import { cn } from "@/lib/utils"
+
+const navItems = [
+  { href: "/wardrobe", label: "My Wardrobe" },
+  { href: "/outfit", label: "Today's Outfit" },
+  { href: "/analytics", label: "Analytics" },
+]
+
+interface NavigationProps {
+  onProtectedLinkClick?: () => void
+}
+
+export function Navigation({ onProtectedLinkClick }: NavigationProps) {
+  const pathname = usePathname()
+  const isLoginPage = pathname === "/"
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+    const hasAuthCookie = document.cookie.includes('dw_auth')
+    setIsLoggedIn(hasAuthCookie)
+  }, [])
+
+  const handleLinkClick = (e: React.MouseEvent, href: string) => {
+    if (isLoginPage && href !== "/") {
+      e.preventDefault()
+      onProtectedLinkClick?.()
+    }
+  }
+
+  // 在客户端渲染之前，使用默认值避免水合错误
+  const logoHref = isClient ? (isLoggedIn ? "/wardrobe" : "/") : "/"
+
+  return (
+    <nav className="absolute top-0 left-0 right-0 z-20 bg-transparent">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <div className="flex-shrink-0">
+            <Link href={logoHref} className="flex items-center space-x-2">
+              <div className="w-8 h-8 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-lg flex items-center justify-center">
+                <span className="text-white font-bold text-lg">DW</span>
+              </div>
+              <span className="text-xl font-bold bg-gradient-to-r from-emerald-600 to-teal-600 bg-clip-text text-transparent">
+                Digital Wardrobe
+              </span>
+            </Link>
+          </div>
+
+          {/* Navigation Links */}
+          <div className="hidden md:block">
+            <div className="ml-10 flex items-baseline space-x-8">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={(e) => handleLinkClick(e, item.href)}
+                  className={cn(
+                    "px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 text-gray-900 hover:text-emerald-600 hover:bg-gray-100/50",
+                    pathname === item.href
+                      ? "bg-gray-100/50 text-emerald-600"
+                      : "text-gray-900/90 hover:text-emerald-600",
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          {/* Mobile menu */}
+          <div className="md:hidden">
+            <div className="flex items-center space-x-4">
+              {navItems.map((item) => (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  onClick={(e) => handleLinkClick(e, item.href)}
+                  className={cn(
+                    "px-2 py-1 rounded text-xs font-medium transition-all duration-200 text-gray-900 hover:text-emerald-600 hover:bg-gray-100/50",
+                    pathname === item.href
+                      ? "bg-gray-100/50 text-emerald-600"
+                      : "text-gray-900/90 hover:text-emerald-600",
+                  )}
+                >
+                  {item.label}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+  )
+}
