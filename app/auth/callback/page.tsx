@@ -12,34 +12,6 @@ export default function AuthCallback() {
       try {
         console.log('Processing auth callback...')
         
-        // 首先尝试从URL中获取认证代码
-        const urlParams = new URLSearchParams(window.location.search)
-        const code = urlParams.get('code')
-        const error = urlParams.get('error')
-        const errorDescription = urlParams.get('error_description')
-        
-        console.log('URL params:', { code: !!code, error, errorDescription })
-        
-        if (error) {
-          console.error('Auth error from URL:', error, errorDescription)
-          router.push('/')
-          return
-        }
-        
-        if (code) {
-          // 如果有认证代码，尝试交换session
-          console.log('Exchanging code for session...')
-          const { data, error: exchangeError } = await supabase.auth.exchangeCodeForSession(code)
-          
-          if (exchangeError) {
-            console.error('Code exchange error:', exchangeError)
-            router.push('/')
-            return
-          }
-          
-          console.log('Code exchange successful:', data)
-        }
-        
         // 获取当前session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
