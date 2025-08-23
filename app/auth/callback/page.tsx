@@ -12,6 +12,43 @@ export default function AuthCallback() {
       try {
         console.log('Processing auth callback...')
         
+        // 处理URL中的认证参数
+        const urlParams = new URLSearchParams(window.location.search)
+        const accessToken = urlParams.get('access_token')
+        const refreshToken = urlParams.get('refresh_token')
+        const error = urlParams.get('error')
+        const errorDescription = urlParams.get('error_description')
+        
+        console.log('URL params:', { 
+          accessToken: !!accessToken, 
+          refreshToken: !!refreshToken, 
+          error, 
+          errorDescription 
+        })
+        
+        if (error) {
+          console.error('Auth error from URL:', error, errorDescription)
+          router.push('/')
+          return
+        }
+        
+        // 如果有token，设置session
+        if (accessToken && refreshToken) {
+          console.log('Setting session from URL tokens...')
+          const { data, error: setSessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          })
+          
+          if (setSessionError) {
+            console.error('Set session error:', setSessionError)
+            router.push('/')
+            return
+          }
+          
+          console.log('Session set successfully:', data)
+        }
+        
         // 获取当前session
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         

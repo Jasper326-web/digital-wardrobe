@@ -225,26 +225,26 @@ export default function OutfitPage() {
               
               {/* Quick Summary */}
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+                <h3 className="text-lg font-semibold text-black mb-4 flex items-center gap-2">
                   <span>📊</span>
                   Quick Stats
                 </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-white/80">Items Selected:</span>
-                    <span className="text-white font-semibold">
+                    <span className="text-black">Items Selected:</span>
+                    <span className="text-black font-semibold">
                       {Object.values(selectedItems).filter(Boolean).length}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-white/80">Total Value:</span>
-                    <span className="text-white font-semibold">
+                    <span className="text-black">Total Value:</span>
+                    <span className="text-black font-semibold">
                       ${Object.values(selectedItems).filter(Boolean).reduce((sum, item) => sum + item.originalPrice, 0).toFixed(0)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-white/80">Total Wears:</span>
-                    <span className="text-white font-semibold">
+                    <span className="text-black">Total Wears:</span>
+                    <span className="text-black font-semibold">
                       {Object.values(selectedItems).filter(Boolean).reduce((sum, item) => sum + item.usageCount, 0)}
                     </span>
                   </div>
