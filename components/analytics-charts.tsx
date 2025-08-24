@@ -46,6 +46,35 @@ const pieColors = {
 }
 
 export function AnalyticsCharts({ items }: AnalyticsChartsProps) {
+  // 处理空数组的情况
+  if (items.length === 0) {
+    return (
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>Most Worn Items</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px] flex items-center justify-center">
+              <p className="text-muted-foreground">No items to display</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Wardrobe Value Analysis</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="h-[300px] flex items-center justify-center">
+              <p className="text-muted-foreground">No items to display</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    )
+  }
+
   // Prepare bar chart data (top 8 most worn items)
   const barChartData = items
     .sort((a, b) => b.usageCount - a.usageCount)
