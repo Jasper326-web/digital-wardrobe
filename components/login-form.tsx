@@ -15,11 +15,22 @@ export function LoginForm() {
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
   const [isClient, setIsClient] = useState(false)
+  const [countdown, setCountdown] = useState(0)
 
   // 确保只在客户端运行
   useEffect(() => {
     setIsClient(true)
   }, [])
+
+  // 倒计时效果
+  useEffect(() => {
+    if (countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1)
+      }, 1000)
+      return () => clearTimeout(timer)
+    }
+  }, [countdown])
 
   // 检查URL参数中的错误信息
   useEffect(() => {
@@ -40,7 +51,23 @@ export function LoginForm() {
     
     try {
       console.log("Login with email:", email)
-      // 使用Supabase邮箱登录
+      
+      // 首先检查用户是否已经认证
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
+      
+      if (sessionError) {
+        console.error('Session check error:', sessionError)
+      }
+      
+      // 如果用户已经认证且邮箱匹配，直接重定向
+      if (session && session.user && session.user.email === email) {
+        console.log('User already authenticated, redirecting to wardrobe')
+        document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
+        window.location.href = '/wardrobe'
+        return
+      }
+      
+      // 如果用户未认证或邮箱不匹配，发送Magic Link
       const { data, error } = await supabase.auth.signInWithOtp({
         email: email,
         options: {
@@ -50,7 +77,16 @@ export function LoginForm() {
       
       if (error) {
         console.error('Email login error:', error)
-        setErrorMessage('Failed to send login email. Please try again.')
+        
+        // 处理速率限制错误
+        if (error.message.includes('55 seconds') || error.message.includes('rate limit')) {
+          setErrorMessage('Too many requests. Please wait about 1 minute before trying again.')
+          setCountdown(60) // 设置60秒倒计时
+        } else if (error.message.includes('Invalid email')) {
+          setErrorMessage('Please enter a valid email address.')
+        } else {
+          setErrorMessage('Failed to send login email. Please try again.')
+        }
       } else {
         alert('Please check your email and click the login link to complete your login!')
       }
@@ -129,15 +165,17 @@ export function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               className="h-12 sm:h-14 text-sm sm:text-base bg-white/90 backdrop-blur-sm border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-orange-400 transition-all duration-300"
               required
-              disabled={isEmailLoading}
+              disabled={isEmailLoading || countdown > 0}
             />
 
             <Button
               type="submit"
-              className="w-full h-12 sm:h-14 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg"
-              disabled={isEmailLoading}
+              className="w-full h-12 sm:h-14 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              disabled={isEmailLoading || countdown > 0}
             >
-              {isEmailLoading ? "Processing..." : "Start building your closet now →"}
+              {isEmailLoading ? "Checking authentication..." : 
+               countdown > 0 ? `Wait ${countdown}s before trying again` : 
+               "Continue to your wardrobe →"}
             </Button>
           </form>
 
