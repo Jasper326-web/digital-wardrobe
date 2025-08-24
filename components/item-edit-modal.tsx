@@ -364,20 +364,43 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
                     <FormLabel>Original Price ($)</FormLabel>
                     <FormControl>
                       <Input
-                        type="number"
-                        step="0.01"
-                        min="0"
+                        type="text"
                         placeholder="0"
                         value={field.value === undefined || field.value === null ? '' : field.value.toString()}
                         onChange={(e) => {
+                          const inputValue = e.target.value
+                          
+                          // 如果输入为空，设置为0
+                          if (inputValue === '') {
+                            field.onChange(0)
+                            return
+                          }
+                          
+                          // 只允许数字和小数点
+                          const numericValue = inputValue.replace(/[^0-9.]/g, '')
+                          
+                          // 确保只有一个小数点
+                          const parts = numericValue.split('.')
+                          if (parts.length > 2) {
+                            return // 多个小数点，不更新
+                          }
+                          
+                          // 限制小数点后两位
+                          if (parts.length === 2 && parts[1].length > 2) {
+                            return // 小数位超过2位，不更新
+                          }
+                          
+                          // 转换为数字
+                          const numValue = parseFloat(numericValue)
+                          if (!isNaN(numValue) && numValue >= 0) {
+                            field.onChange(numValue)
+                          }
+                        }}
+                        onBlur={(e) => {
+                          // 失去焦点时，如果是空值或无效值，设置为0
                           const value = e.target.value
-                          if (value === '') {
-                            field.onChange(undefined)
-                          } else {
-                            const numValue = Number.parseFloat(value)
-                            if (!isNaN(numValue)) {
-                              field.onChange(numValue)
-                            }
+                          if (value === '' || isNaN(parseFloat(value))) {
+                            field.onChange(0)
                           }
                         }}
                       />
