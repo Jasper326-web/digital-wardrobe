@@ -51,7 +51,7 @@ export function DeleteConfirmModal({ item, isOpen, onClose, onConfirm }: DeleteC
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md" aria-describedby="delete-description">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-red-600">
             <AlertTriangle className="w-5 h-5" />
@@ -76,7 +76,7 @@ export function DeleteConfirmModal({ item, isOpen, onClose, onConfirm }: DeleteC
             </div>
           </div>
 
-          <div className="text-center space-y-2">
+          <div className="text-center space-y-2" id="delete-description">
             <p className="text-gray-700">
               Are you sure you want to delete <span className="font-semibold">"{item.name}"</span>?
             </p>

@@ -192,13 +192,6 @@ export default function OutfitPage() {
               </button>
             </div>
           </div>
-        ) : items.length === 0 ? (
-          <div className="flex justify-center items-center py-8">
-            <div className="text-center">
-              <div className="text-white text-lg mb-4">No wardrobe items found</div>
-              <p className="text-white/70 text-sm">Add some clothing items to your wardrobe to plan outfits</p>
-            </div>
-          </div>
         ) : (
           <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 mb-16">
             {/* Left Side - Item Selector */}

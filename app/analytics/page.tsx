@@ -105,13 +105,6 @@ export default function AnalyticsPage() {
               </button>
             </div>
           </div>
-        ) : items.length === 0 ? (
-          <div className="flex justify-center items-center py-12">
-            <div className="text-center">
-              <div className="text-white text-lg mb-4">No wardrobe data found</div>
-              <p className="text-white/70 text-sm">Add some clothing items to your wardrobe to see analytics</p>
-            </div>
-          </div>
         ) : (
           <div className="space-y-8">
             {/* Stats Cards */}
