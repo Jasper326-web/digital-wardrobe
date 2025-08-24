@@ -103,7 +103,7 @@ export default function WardrobePage() {
         // 创建新项目
         const dbItem = await createClothingItem({
           name: updatedItem.name,
-          image_url: updatedItem.image,
+          image_url: updatedItem.image || "",
           usage_count: updatedItem.usageCount,
           original_price: updatedItem.originalPrice,
           category: currentCategory,
@@ -149,6 +149,14 @@ export default function WardrobePage() {
       }
     } catch (error) {
       console.error('Failed to save item:', error)
+      
+      // 处理认证过期错误
+      if (error instanceof Error && error.message === 'AUTH_EXPIRED') {
+        alert('Your session has expired. Please log in again.')
+        window.location.href = '/'
+        return
+      }
+      
       alert('Failed to save item. Please try again.')
     }
     handleCloseModal()
@@ -174,6 +182,14 @@ export default function WardrobePage() {
       alert(`Item "${item.name}" has been deleted successfully!`)
     } catch (error) {
       console.error('Failed to delete item:', error)
+      
+      // 处理认证过期错误
+      if (error instanceof Error && error.message === 'AUTH_EXPIRED') {
+        alert('Your session has expired. Please log in again.')
+        window.location.href = '/'
+        return
+      }
+      
       alert('Failed to delete item. Please try again.')
     }
     setIsDeleteModalOpen(false)

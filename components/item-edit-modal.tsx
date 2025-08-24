@@ -368,13 +368,16 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
                         step="0.01"
                         min="0"
                         placeholder="0"
-                        value={field.value || ''} // 当值为undefined时显示空字符串
+                        value={field.value === undefined || field.value === null ? '' : field.value.toString()}
                         onChange={(e) => {
                           const value = e.target.value
                           if (value === '') {
-                            field.onChange(undefined) // 空值时设为undefined
+                            field.onChange(undefined)
                           } else {
-                            field.onChange(Number.parseFloat(value) || 0)
+                            const numValue = Number.parseFloat(value)
+                            if (!isNaN(numValue)) {
+                              field.onChange(numValue)
+                            }
                           }
                         }}
                       />

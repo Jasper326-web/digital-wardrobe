@@ -78,11 +78,25 @@ export const getClothingItems = async (): Promise<ClothingItem[]> => {
 
 // 创建新的衣物项目
 export const createClothingItem = async (item: Omit<ClothingItem, 'id' | 'created_at' | 'updated_at' | 'user_id'>): Promise<ClothingItem> => {
-  // 获取当前用户
-  const { data: { user } } = await supabase.auth.getUser()
+  // 首先检查认证状态
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
   
+  if (authError) {
+    console.error('Auth error:', authError)
+    // 清除过期的认证cookie
+    if (typeof document !== 'undefined') {
+      document.cookie = "dw_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    }
+    throw new Error('AUTH_EXPIRED')
+  }
+
   if (!user) {
-    throw new Error('User not authenticated')
+    console.error('No authenticated user found')
+    // 清除过期的认证cookie
+    if (typeof document !== 'undefined') {
+      document.cookie = "dw_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    }
+    throw new Error('AUTH_EXPIRED')
   }
 
   const { data, error } = await supabase
@@ -106,10 +120,25 @@ export const createClothingItem = async (item: Omit<ClothingItem, 'id' | 'create
 
 // 更新衣物项目
 export const updateClothingItem = async (id: string, updates: Partial<ClothingItem>): Promise<ClothingItem> => {
-  const { data: { user } } = await supabase.auth.getUser()
+  // 首先检查认证状态
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
   
+  if (authError) {
+    console.error('Auth error:', authError)
+    // 清除过期的认证cookie
+    if (typeof document !== 'undefined') {
+      document.cookie = "dw_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    }
+    throw new Error('AUTH_EXPIRED')
+  }
+
   if (!user) {
-    throw new Error('User not authenticated')
+    console.error('No authenticated user found')
+    // 清除过期的认证cookie
+    if (typeof document !== 'undefined') {
+      document.cookie = "dw_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    }
+    throw new Error('AUTH_EXPIRED')
   }
 
   const { data, error } = await supabase
@@ -165,10 +194,25 @@ export const deleteClothingItem = async (id: string): Promise<void> => {
 
 // 增加使用次数
 export const incrementUsageCount = async (id: string): Promise<void> => {
-  const { data: { user } } = await supabase.auth.getUser()
+  // 首先检查认证状态
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
   
+  if (authError) {
+    console.error('Auth error:', authError)
+    // 清除过期的认证cookie
+    if (typeof document !== 'undefined') {
+      document.cookie = "dw_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    }
+    throw new Error('AUTH_EXPIRED')
+  }
+
   if (!user) {
-    throw new Error('User not authenticated')
+    console.error('No authenticated user found')
+    // 清除过期的认证cookie
+    if (typeof document !== 'undefined') {
+      document.cookie = "dw_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+    }
+    throw new Error('AUTH_EXPIRED')
   }
 
   const { error } = await supabase
