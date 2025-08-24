@@ -33,7 +33,7 @@ interface ItemEditModalProps {
 
 interface FormData {
   name: string
-  originalPrice: number
+  originalPrice: number | undefined
   usageCount: number
   tags: string[]
 }
@@ -64,7 +64,7 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
   const form = useForm<FormData>({
     defaultValues: {
       name: "",
-      originalPrice: 0,
+      originalPrice: undefined, // 改为undefined，避免显示0
       usageCount: 0,
       tags: [],
     },
@@ -79,6 +79,15 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
         tags: item.tags,
       })
       setUploadedImage(item.image || null)
+    } else {
+      // 重置为新项目的默认值
+      form.reset({
+        name: "",
+        originalPrice: undefined, // 新项目时也不显示0
+        usageCount: 0,
+        tags: [],
+      })
+      setUploadedImage(null)
     }
   }, [item, form])
 
@@ -86,12 +95,12 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
 
   const watchedValues = form.watch()
   const costPerWear =
-    (watchedValues.originalPrice / (watchedValues.usageCount + 1)).toFixed(2)
+    ((watchedValues.originalPrice || 0) / (watchedValues.usageCount + 1)).toFixed(2)
 
   const totalUsedValue =
-    (watchedValues.originalPrice * (watchedValues.usageCount / (watchedValues.usageCount + 1))).toFixed(2)
+    ((watchedValues.originalPrice || 0) * (watchedValues.usageCount / (watchedValues.usageCount + 1))).toFixed(2)
 
-  const remainingValue = (watchedValues.originalPrice - Number.parseFloat(totalUsedValue)).toFixed(2)
+  const remainingValue = ((watchedValues.originalPrice || 0) - Number.parseFloat(totalUsedValue)).toFixed(2)
 
   const handleUsageChange = (increment: boolean) => {
     const currentUsage = form.getValues("usageCount")
@@ -250,10 +259,12 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
     const itemToSave = item ? {
       ...item,
       ...data,
+      originalPrice: data.originalPrice || 0, // 确保originalPrice是数字
       image: uploadedImage || item.image,
     } : {
       id: `new-${Date.now()}`,
       ...data,
+      originalPrice: data.originalPrice || 0, // 确保originalPrice是数字
       image: uploadedImage || "",
     }
     onSave(itemToSave)
