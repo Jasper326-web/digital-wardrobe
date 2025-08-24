@@ -16,12 +16,16 @@ export default function AuthCallback() {
         const urlParams = new URLSearchParams(window.location.search)
         const accessToken = urlParams.get('access_token')
         const refreshToken = urlParams.get('refresh_token')
+        const tokenHash = urlParams.get('token_hash')
+        const type = urlParams.get('type')
         const error = urlParams.get('error')
         const errorDescription = urlParams.get('error_description')
         
         console.log('URL params:', { 
           accessToken: !!accessToken, 
-          refreshToken: !!refreshToken, 
+          refreshToken: !!refreshToken,
+          tokenHash: !!tokenHash,
+          type,
           error, 
           errorDescription 
         })
@@ -30,6 +34,23 @@ export default function AuthCallback() {
           console.error('Auth error from URL:', error, errorDescription)
           router.push('/')
           return
+        }
+        
+        // 处理Magic Link的token_hash
+        if (tokenHash && type === 'email') {
+          console.log('Verifying OTP with token_hash...')
+          const { data, error: verifyError } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: 'email'
+          })
+          
+          if (verifyError) {
+            console.error('OTP verification error:', verifyError)
+            router.push('/')
+            return
+          }
+          
+          console.log('OTP verification successful:', data)
         }
         
         // 如果有token，设置session
@@ -89,7 +110,7 @@ export default function AuthCallback() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-        <p className="text-gray-600">处理登录中...</p>
+        <p className="text-gray-600">Processing login...</p>
       </div>
     </div>
   )

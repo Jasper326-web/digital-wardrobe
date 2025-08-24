@@ -10,11 +10,12 @@ import { supabase } from "@/lib/supabase"
 
 export function LoginForm() {
   const [email, setEmail] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [isEmailLoading, setIsEmailLoading] = useState(false)
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsLoading(true)
+    setIsEmailLoading(true)
     
     try {
       console.log("Login with email:", email)
@@ -32,7 +33,7 @@ export function LoginForm() {
         document.cookie = `dw_auth=1; path=/; max-age=86400`
         window.location.href = "/wardrobe"
       } else {
-        alert('请检查你的邮箱，点击登录链接完成登录！')
+        alert('Please check your email and click the login link to complete your login!')
       }
     } catch (error) {
       console.error('Login error:', error)
@@ -40,12 +41,12 @@ export function LoginForm() {
       document.cookie = `dw_auth=1; path=/; max-age=86400`
       window.location.href = "/wardrobe"
     } finally {
-      setIsLoading(false)
+      setIsEmailLoading(false)
     }
   }
 
   const handleGoogleLogin = async () => {
-    setIsLoading(true)
+    setIsGoogleLoading(true)
     
     try {
       console.log("Login with Google")
@@ -70,7 +71,7 @@ export function LoginForm() {
       document.cookie = `dw_auth=1; path=/; max-age=86400`
       window.location.href = "/wardrobe"
     } finally {
-      setIsLoading(false)
+      setIsGoogleLoading(false)
     }
   }
 
@@ -93,15 +94,15 @@ export function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               className="h-12 sm:h-14 text-sm sm:text-base bg-white/90 backdrop-blur-sm border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-orange-400 transition-all duration-300"
               required
-              disabled={isLoading}
+              disabled={isEmailLoading}
             />
 
             <Button
               type="submit"
               className="w-full h-12 sm:h-14 bg-gradient-to-r from-orange-400 to-orange-500 hover:from-orange-500 hover:to-orange-600 text-white font-semibold rounded-2xl text-sm sm:text-base shadow-lg hover:shadow-orange-500/25 transition-all duration-300 transform hover:scale-[1.02]"
-              disabled={isLoading}
+              disabled={isEmailLoading}
             >
-              {isLoading ? '处理中...' : 'Start building your closet now →'}
+              {isEmailLoading ? 'Processing...' : 'Start building your closet now →'}
             </Button>
           </form>
 
@@ -112,7 +113,7 @@ export function LoginForm() {
               variant="outline"
               onClick={handleGoogleLogin}
               className="w-full h-12 sm:h-14 bg-white/90 backdrop-blur-sm hover:bg-white text-gray-900 border border-gray-200 hover:border-gray-300 rounded-2xl font-medium transition-all duration-300"
-              disabled={isLoading}
+              disabled={isGoogleLoading}
             >
               <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" viewBox="0 0 24 24">
                 <path
@@ -132,7 +133,7 @@ export function LoginForm() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              {isLoading ? '处理中...' : 'Continue with Google'}
+              {isGoogleLoading ? 'Processing...' : 'Continue with Google'}
             </Button>
 
             <p className="text-xs text-gray-600 mt-1">If you already have an account, we'll log you in</p>

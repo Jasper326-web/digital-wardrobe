@@ -8,13 +8,10 @@ import { Navigation } from "@/components/navigation"
 export default function HomePage() {
   const loginFormRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
-  const [isClient, setIsClient] = useState(false)
   const [debugInfo, setDebugInfo] = useState<string>('')
 
   // 检查登录状态，如果已登录则重定向到wardrobe页面
   useEffect(() => {
-    setIsClient(true)
-    
     // 添加调试信息
     const debug = `
       环境检查:
@@ -41,18 +38,6 @@ export default function HomePage() {
         loginFormRef.current?.classList.remove('animate-shake')
       }, 500)
     }
-  }
-
-  // 如果还没有客户端渲染，显示加载状态
-  if (!isClient) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading Digital Wardrobe...</p>
-        </div>
-      </div>
-    )
   }
 
   return (
