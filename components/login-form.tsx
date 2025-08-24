@@ -14,16 +14,24 @@ export function LoginForm() {
   const [isEmailLoading, setIsEmailLoading] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
+  const [isClient, setIsClient] = useState(false)
+
+  // 确保只在客户端运行
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   // 检查URL参数中的错误信息
   useEffect(() => {
+    if (!isClient) return
+    
     const urlParams = new URLSearchParams(window.location.search)
     const error = urlParams.get('error')
     
     if (error === 'link_expired') {
       setErrorMessage('The login link has expired. Please try logging in again.')
     }
-  }, [])
+  }, [isClient])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -79,6 +87,19 @@ export function LoginForm() {
     } finally {
       setIsGoogleLoading(false)
     }
+  }
+
+  // 如果不在客户端，显示加载状态
+  if (!isClient) {
+    return (
+      <div className="w-full max-w-sm sm:max-w-md p-6 sm:p-8 bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl">
+        <div className="animate-pulse">
+          <div className="h-12 bg-white/20 rounded-2xl mb-4"></div>
+          <div className="h-12 bg-white/20 rounded-2xl mb-4"></div>
+          <div className="h-12 bg-white/20 rounded-2xl"></div>
+        </div>
+      </div>
+    )
   }
 
   return (

@@ -11,9 +11,17 @@ export default function HomePage() {
   const router = useRouter()
   const [debugInfo, setDebugInfo] = useState<string>('')
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
+  const [isClient, setIsClient] = useState(false)
+
+  // 确保只在客户端运行
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
 
   // 检查登录状态，如果已登录则重定向到wardrobe页面
   useEffect(() => {
+    if (!isClient) return
+
     const checkAuthStatus = async () => {
       try {
         // 添加调试信息
@@ -63,7 +71,7 @@ export default function HomePage() {
     }
     
     checkAuthStatus()
-  }, [router])
+  }, [router, isClient])
 
   const handleProtectedLinkClick = () => {
     if (loginFormRef.current) {
@@ -76,7 +84,7 @@ export default function HomePage() {
   }
 
   // 如果正在检查认证状态，显示加载状态
-  if (isCheckingAuth) {
+  if (!isClient || isCheckingAuth) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
