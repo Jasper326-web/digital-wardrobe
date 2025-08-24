@@ -4,30 +4,65 @@ import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { LoginForm } from "@/components/login-form"
 import { Navigation } from "@/components/navigation"
+import { supabase } from "@/lib/supabase"
 
 export default function HomePage() {
   const loginFormRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
   const [debugInfo, setDebugInfo] = useState<string>('')
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true)
 
   // 检查登录状态，如果已登录则重定向到wardrobe页面
   useEffect(() => {
-    // 添加调试信息
-    const debug = `
-      环境检查:
-      - URL: ${window.location.href}
-      - User Agent: ${navigator.userAgent}
-      - Cookies: ${document.cookie}
-      - dw_auth: ${document.cookie.includes('dw_auth') ? '存在' : '不存在'}
-      - 第三方脚本: ${Array.from(document.scripts).filter(s => s.src.includes('auth') || s.src.includes('google') || s.src.includes('github')).length}个
-    `
-    setDebugInfo(debug)
-    console.log('Digital Wardrobe 调试信息:', debug)
-    
-    const isLoggedIn = document.cookie.includes('dw_auth')
-    if (isLoggedIn) {
-      router.push('/wardrobe')
+    const checkAuthStatus = async () => {
+      try {
+        // 添加调试信息
+        const debug = `
+          环境检查:
+          - URL: ${window.location.href}
+          - User Agent: ${navigator.userAgent}
+          - Cookies: ${document.cookie}
+          - dw_auth: ${document.cookie.includes('dw_auth') ? '存在' : '不存在'}
+          - 第三方脚本: ${Array.from(document.scripts).filter(s => s.src.includes('auth') || s.src.includes('google') || s.src.includes('github')).length}个
+        `
+        setDebugInfo(debug)
+        console.log('Digital Wardrobe 调试信息:', debug)
+        
+        // 检查Supabase会话状态
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+          console.error('Auth check error:', error)
+          // 清除可能过期的cookie
+          document.cookie = "dw_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+          setIsCheckingAuth(false)
+          return
+        }
+        
+        if (session && session.user) {
+          console.log('User is authenticated:', session.user.email)
+          // 设置认证cookie
+          document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
+          router.push('/wardrobe')
+          return
+        }
+        
+        // 检查dw_auth cookie作为备用
+        const hasDwAuthCookie = document.cookie.includes('dw_auth')
+        if (hasDwAuthCookie) {
+          console.log('Found dw_auth cookie, redirecting to wardrobe')
+          router.push('/wardrobe')
+          return
+        }
+        
+        setIsCheckingAuth(false)
+      } catch (error) {
+        console.error('Auth check failed:', error)
+        setIsCheckingAuth(false)
+      }
     }
+    
+    checkAuthStatus()
   }, [router])
 
   const handleProtectedLinkClick = () => {
@@ -38,6 +73,18 @@ export default function HomePage() {
         loginFormRef.current?.classList.remove('animate-shake')
       }, 500)
     }
+  }
+
+  // 如果正在检查认证状态，显示加载状态
+  if (isCheckingAuth) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
+          <p className="text-gray-600">Checking authentication...</p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -99,29 +146,21 @@ export default function HomePage() {
                         Upload your wardrobe
                       </span>
                       <span 
-                        className="mx-2 font-black text-white"
+                        className="text-white font-black"
                         style={{ 
                           textShadow: "-0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000"
                         }}
                       >
-                        →
-                      </span>
-                      <span 
-                        className="font-black text-white"
-                        style={{ 
-                          textShadow: "-0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000"
-                        }}
-                      >
-                        Build your personal closet
+                        →Build your personal closet
                       </span>
                     </p>
                   </div>
 
                   <div className="group flex items-start gap-3 lg:gap-4 p-0">
                     <span className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform duration-300 flex-shrink-0">📊</span>
-                    <p className="leading-tight text-white">
+                    <p className="leading-tight">
                       <span 
-                        className="font-black text-white whitespace-nowrap"
+                        className="text-white font-black"
                         style={{ 
                           textShadow: "-0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000"
                         }}
@@ -132,31 +171,15 @@ export default function HomePage() {
                   </div>
 
                   <div className="group flex items-start gap-3 lg:gap-4 p-0">
-                    <span className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform duration-300 flex-shrink-0">🪄</span>
-                    <p className="leading-tight text-white">
+                    <span className="text-2xl sm:text-3xl group-hover:scale-110 transition-transform duration-300 flex-shrink-0">✨</span>
+                    <p className="leading-tight">
                       <span 
-                        className="font-black text-white"
+                        className="text-white font-black"
                         style={{ 
                           textShadow: "-0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000"
                         }}
                       >
-                        Get{" "}
-                      </span>
-                      <span 
-                        className="font-black text-white"
-                        style={{ 
-                          textShadow: "-0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000"
-                        }}
-                      >
-                        simple daily outfit ideas
-                      </span>
-                      <span 
-                        className="font-black text-white"
-                        style={{ 
-                          textShadow: "-0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000"
-                        }}
-                      >
-                        {" "}tailored to you
+                        Get your first free analysis in less than a minute
                       </span>
                     </p>
                   </div>
@@ -165,7 +188,7 @@ export default function HomePage() {
             </div>
 
             {/* Right side - Login form */}
-            <div className="flex justify-center lg:justify-end" ref={loginFormRef}>
+            <div ref={loginFormRef} className="flex justify-center lg:justify-end">
               <LoginForm />
             </div>
           </div>

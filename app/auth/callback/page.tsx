@@ -36,9 +36,19 @@ export default function AuthCallback() {
         console.log('error:', error)
         console.log('errorDescription:', errorDescription)
         
-        // Handle errors
+        // Handle errors - but don't immediately redirect for expired links
         if (error) {
           console.error('Auth error from URL:', error, errorDescription)
+          
+          // For expired Magic Links, redirect to home with a message
+          if (error === 'access_denied' && errorDescription?.includes('expired')) {
+            console.log('Magic Link expired, redirecting to home')
+            // 清除可能过期的cookie
+            document.cookie = "dw_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+            router.push('/?error=link_expired')
+            return
+          }
+          
           router.push('/')
           return
         }
