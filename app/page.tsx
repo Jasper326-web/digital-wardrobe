@@ -58,9 +58,19 @@ export default function HomePage() {
         // 检查dw_auth cookie作为备用
         const hasDwAuthCookie = document.cookie.includes('dw_auth')
         if (hasDwAuthCookie) {
-          console.log('Found dw_auth cookie, redirecting to wardrobe')
-          router.push('/wardrobe')
-          return
+          console.log('Found dw_auth cookie, checking if session is still valid...')
+          
+          // 尝试刷新会话
+          const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession()
+          
+          if (refreshedSession && refreshedSession.user) {
+            console.log('Session refreshed successfully, redirecting to wardrobe')
+            router.push('/wardrobe')
+            return
+          } else {
+            console.log('Session refresh failed, clearing cookie')
+            document.cookie = "dw_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+          }
         }
         
         setIsCheckingAuth(false)

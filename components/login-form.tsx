@@ -52,22 +52,7 @@ export function LoginForm() {
     try {
       console.log("Login with email:", email)
       
-      // 首先检查用户是否已经认证
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession()
-      
-      if (sessionError) {
-        console.error('Session check error:', sessionError)
-      }
-      
-      // 如果用户已经认证且邮箱匹配，直接重定向
-      if (session && session.user && session.user.email === email) {
-        console.log('User already authenticated, redirecting to wardrobe')
-        document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
-        window.location.href = '/wardrobe'
-        return
-      }
-      
-      // 如果用户未认证或邮箱不匹配，发送Magic Link
+      // 使用Supabase邮箱登录
       const { data, error } = await supabase.auth.signInWithOtp({
         email: email,
         options: {
