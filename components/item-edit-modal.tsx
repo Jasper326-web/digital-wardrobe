@@ -64,7 +64,7 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
   const form = useForm<FormData>({
     defaultValues: {
       name: "",
-      originalPrice: undefined, // 改为undefined，避免显示0
+      originalPrice: undefined, // 保持undefined，不使用默认值
       usageCount: 0,
       tags: [],
     },
@@ -83,7 +83,7 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
       // 重置为新项目的默认值
       form.reset({
         name: "",
-        originalPrice: undefined, // 新项目时也不显示0
+        originalPrice: undefined, // 新项目时也不使用默认值
         usageCount: 0,
         tags: [],
       })
@@ -367,8 +367,16 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
                         type="number"
                         step="0.01"
                         min="0"
-                        {...field}
-                        onChange={(e) => field.onChange(Number.parseFloat(e.target.value) || 0)}
+                        placeholder="0"
+                        value={field.value || ''} // 当值为undefined时显示空字符串
+                        onChange={(e) => {
+                          const value = e.target.value
+                          if (value === '') {
+                            field.onChange(undefined) // 空值时设为undefined
+                          } else {
+                            field.onChange(Number.parseFloat(value) || 0)
+                          }
+                        }}
                       />
                     </FormControl>
                     <FormMessage />
