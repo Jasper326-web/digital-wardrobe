@@ -10,7 +10,9 @@ export default function AuthCallback() {
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        console.log('Processing auth callback...')
+        console.log('=== AUTH CALLBACK DEBUG START ===')
+        console.log('Current URL:', window.location.href)
+        console.log('Search params:', window.location.search)
         
         // 处理URL中的认证参数
         const urlParams = new URLSearchParams(window.location.search)
@@ -21,14 +23,13 @@ export default function AuthCallback() {
         const error = urlParams.get('error')
         const errorDescription = urlParams.get('error_description')
         
-        console.log('URL params:', { 
-          accessToken: !!accessToken, 
-          refreshToken: !!refreshToken,
-          tokenHash: !!tokenHash,
-          type,
-          error, 
-          errorDescription 
-        })
+        console.log('=== URL PARAMS ===')
+        console.log('accessToken:', accessToken ? 'EXISTS' : 'NOT FOUND')
+        console.log('refreshToken:', refreshToken ? 'EXISTS' : 'NOT FOUND')
+        console.log('tokenHash:', tokenHash ? 'EXISTS' : 'NOT FOUND')
+        console.log('type:', type)
+        console.log('error:', error)
+        console.log('errorDescription:', errorDescription)
         
         if (error) {
           console.error('Auth error from URL:', error, errorDescription)
@@ -38,7 +39,9 @@ export default function AuthCallback() {
         
         // 处理Magic Link的token_hash
         if (tokenHash && type === 'email') {
-          console.log('Verifying OTP with token_hash...')
+          console.log('=== PROCESSING MAGIC LINK ===')
+          console.log('Verifying OTP with token_hash:', tokenHash)
+          
           const { data, error: verifyError } = await supabase.auth.verifyOtp({
             token_hash: tokenHash,
             type: 'email'
@@ -55,7 +58,7 @@ export default function AuthCallback() {
         
         // 如果有token，设置session
         if (accessToken && refreshToken) {
-          console.log('Setting session from URL tokens...')
+          console.log('=== SETTING SESSION FROM TOKENS ===')
           const { data, error: setSessionError } = await supabase.auth.setSession({
             access_token: accessToken,
             refresh_token: refreshToken
@@ -71,6 +74,7 @@ export default function AuthCallback() {
         }
         
         // 获取当前session
+        console.log('=== GETTING CURRENT SESSION ===')
         const { data: { session }, error: sessionError } = await supabase.auth.getSession()
         
         if (sessionError) {
@@ -79,10 +83,15 @@ export default function AuthCallback() {
           return
         }
 
-        console.log('Auth session data:', { session: !!session, user: session?.user?.email })
+        console.log('Session data:', { 
+          hasSession: !!session, 
+          userEmail: session?.user?.email,
+          userId: session?.user?.id
+        })
 
         if (session) {
-          console.log('User authenticated:', session.user.email)
+          console.log('=== USER AUTHENTICATED ===')
+          console.log('Setting dw_auth cookie...')
           
           // 设置我们的认证cookie
           document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
@@ -90,14 +99,19 @@ export default function AuthCallback() {
           // 等待一下确保cookie设置完成
           await new Promise(resolve => setTimeout(resolve, 100))
           
+          console.log('Redirecting to /wardrobe...')
           // 重定向到wardrobe页面
           router.push('/wardrobe')
         } else {
-          console.log('No session found, redirecting to home')
+          console.log('=== NO SESSION FOUND ===')
+          console.log('Redirecting to home...')
           // 没有session，重定向到首页
           router.push('/')
         }
+        
+        console.log('=== AUTH CALLBACK DEBUG END ===')
       } catch (error) {
+        console.error('=== AUTH CALLBACK ERROR ===')
         console.error('Auth callback error:', error)
         router.push('/')
       }
@@ -111,6 +125,7 @@ export default function AuthCallback() {
       <div className="text-center">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
         <p className="text-gray-600">Processing login...</p>
+        <p className="text-gray-400 text-sm mt-2">Check browser console for debug info</p>
       </div>
     </div>
   )
