@@ -33,6 +33,7 @@ export function UserAvatar() {
     const getUser = async () => {
       try {
         const { data: { user } } = await supabase.auth.getUser()
+        console.log('UserAvatar: Got user:', user?.email, user?.user_metadata)
         setUser(user)
       } catch (error) {
         console.error('Error getting user:', error)
@@ -46,6 +47,7 @@ export function UserAvatar() {
     // 监听认证状态变化
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
+        console.log('UserAvatar: Auth state changed:', event, session?.user?.email)
         setUser(session?.user ?? null)
         setIsLoading(false)
       }
@@ -76,12 +78,12 @@ export function UserAvatar() {
     return null
   }
 
-  // 获取用户头像URL（优先使用Google头像）
+  // 获取用户头像URL（优先使用Google头像，邮箱用户没有头像）
   const avatarUrl = user.user_metadata?.avatar_url || 
                    user.user_metadata?.picture || 
                    undefined
 
-  // 获取用户显示名称
+  // 获取用户显示名称（邮箱用户使用邮箱前缀）
   const displayName = user.user_metadata?.full_name || 
                      user.email?.split('@')[0] || 
                      'User'
@@ -97,7 +99,11 @@ export function UserAvatar() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+        <Button 
+          variant="ghost" 
+          size="icon"
+          className="relative h-8 w-8 rounded-full hover:bg-gray-100"
+        >
           <Avatar className="h-8 w-8">
             <AvatarImage src={avatarUrl} alt={displayName} />
             <AvatarFallback className="bg-emerald-500 text-white text-xs font-medium">
@@ -106,7 +112,11 @@ export function UserAvatar() {
           </Avatar>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent className="w-56" align="end" forceMount>
+      <DropdownMenuContent 
+        className="w-56" 
+        align="end" 
+        sideOffset={8}
+      >
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
             <p className="text-sm font-medium leading-none">{displayName}</p>
@@ -116,7 +126,10 @@ export function UserAvatar() {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onClick={handleSignOut} className="text-red-600">
+        <DropdownMenuItem 
+          onClick={handleSignOut}
+          className="text-red-600 cursor-pointer"
+        >
           <svg
             className="mr-2 h-4 w-4"
             fill="none"

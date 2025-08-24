@@ -9,7 +9,7 @@ import { supabase } from "@/lib/supabase"
 export default function HomePage() {
   const loginFormRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
-  const [debugInfo, setDebugInfo] = useState<string>('')
+
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [isClient, setIsClient] = useState(false)
 
@@ -24,17 +24,7 @@ export default function HomePage() {
 
     const checkAuthStatus = async () => {
       try {
-        // 添加调试信息
-        const debug = `
-          环境检查:
-          - URL: ${window.location.href}
-          - User Agent: ${navigator.userAgent}
-          - Cookies: ${document.cookie}
-          - dw_auth: ${document.cookie.includes('dw_auth') ? '存在' : '不存在'}
-          - 第三方脚本: ${Array.from(document.scripts).filter(s => s.src.includes('auth') || s.src.includes('google') || s.src.includes('github')).length}个
-        `
-        setDebugInfo(debug)
-        console.log('Digital Wardrobe 调试信息:', debug)
+
         
         // 检查Supabase会话状态
         const { data: { session }, error } = await supabase.auth.getSession()
@@ -107,13 +97,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen relative overflow-hidden">
-      {/* 调试信息 - 生产环境可以隐藏 */}
-      {process.env.NODE_ENV === 'development' && (
-        <div className="fixed top-4 left-4 z-50 bg-black/80 text-white p-4 rounded-lg text-xs max-w-md">
-          <h3 className="font-bold mb-2">调试信息:</h3>
-          <pre className="whitespace-pre-wrap">{debugInfo}</pre>
-        </div>
-      )}
+
       
       <Navigation onProtectedLinkClick={handleProtectedLinkClick} />
       {/* Background images */}

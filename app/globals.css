@@ -114,8 +114,8 @@
   --color-sidebar-ring: var(--sidebar-ring);
 
   /* Added custom font families for Playfair Display and Source Sans Pro */
-  --font-heading: "Playfair Display", serif;
-  --font-body: "Source Sans Pro", sans-serif;
+  --font-heading: var(--font-playfair), "Playfair Display", serif;
+  --font-body: var(--font-source-sans), "Source Sans Pro", sans-serif;
 }
 
 @layer base {

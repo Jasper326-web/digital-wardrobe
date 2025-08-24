@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation"
 import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { UserAvatar } from "./user-avatar"
+import { supabase } from "@/lib/supabase"
 
 const navItems = [
   { href: "/wardrobe", label: "My Wardrobe" },
@@ -24,8 +25,33 @@ export function Navigation({ onProtectedLinkClick }: NavigationProps) {
 
   useEffect(() => {
     setIsClient(true)
-    const hasAuthCookie = document.cookie.includes('dw_auth')
-    setIsLoggedIn(hasAuthCookie)
+    
+    // 检查认证状态
+    const checkAuthStatus = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
+        console.log('Navigation: Auth session:', !!session, session?.user?.email)
+        setIsLoggedIn(!!session)
+      } catch (error) {
+        console.error('Error checking auth status:', error)
+        // 如果Supabase检查失败，回退到cookie检查
+        const hasAuthCookie = document.cookie.includes('dw_auth')
+        console.log('Navigation: Fallback to cookie check:', hasAuthCookie)
+        setIsLoggedIn(hasAuthCookie)
+      }
+    }
+
+    checkAuthStatus()
+
+    // 监听认证状态变化
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        console.log('Navigation: Auth state changed:', event, !!session, session?.user?.email)
+        setIsLoggedIn(!!session)
+      }
+    )
+
+    return () => subscription.unsubscribe()
   }, [])
 
   const handleLinkClick = (e: React.MouseEvent, href: string) => {
