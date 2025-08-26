@@ -67,3 +67,4 @@ pnpm dev
 - Ensure HTTPS is enabled (required for camera access)
 - Check browser permissions for camera access
 - Try refreshing the page if camera doesn't start
+# Trigger Cloudflare deployment
