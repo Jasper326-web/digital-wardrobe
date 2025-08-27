@@ -1,25 +1,40 @@
 import { createClient } from '@supabase/supabase-js'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-  auth: {
-    persistSession: true,
-    autoRefreshToken: true,
-    // 使用简单的认证流程
-    detectSessionInUrl: true,
-    flowType: 'implicit'
-  },
-  realtime: {
-    params: {
-      eventsPerSecond: 10,
+// 检查环境变量是否存在
+if (!supabaseUrl || !supabaseAnonKey) {
+  console.warn('Supabase environment variables are not set. Some features may not work.')
+}
+
+export const supabase = createClient(
+  supabaseUrl || 'https://placeholder.supabase.co',
+  supabaseAnonKey || 'placeholder-key',
+  {
+    auth: {
+      persistSession: true,
+      autoRefreshToken: true,
+      // 使用简单的认证流程
+      detectSessionInUrl: true,
+      flowType: 'implicit'
     },
-  },
-})
+    realtime: {
+      params: {
+        eventsPerSecond: 10,
+      },
+    },
+  }
+)
 
 // 检查Supabase连接状态
 export const checkSupabaseConnection = async (): Promise<boolean> => {
+  // 如果环境变量未设置，返回 false
+  if (!supabaseUrl || !supabaseAnonKey) {
+    console.warn('Supabase environment variables not set, skipping connection check')
+    return false
+  }
+
   try {
     const { data, error } = await supabase
       .from('clothing_items')
