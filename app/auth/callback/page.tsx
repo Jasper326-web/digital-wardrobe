@@ -2,6 +2,7 @@ import { Suspense } from 'react'
 import CallbackClient from './callback-client'
 
 export const dynamic = 'force-dynamic'
+export const runtime = 'edge'
 
 export default function AuthCallbackPage() {
   return (
