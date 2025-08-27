@@ -1,0 +1,11 @@
+name = "digital-wardrobe"
+compatibility_date = "2025-08-26"
+
+[compatibility_flags]
+nodejs_compat = true
+
+[env.production]
+compatibility_flags = ["nodejs_compat"]
+
+[env.preview]
+compatibility_flags = ["nodejs_compat"]
