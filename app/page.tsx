@@ -5,10 +5,12 @@ import { useRouter } from "next/navigation"
 import { LoginForm } from "@/components/login-form"
 import { Navigation } from "@/components/navigation"
 import { supabase } from "@/lib/supabase"
+import { useLanguage } from "@/lib/lang-context"
 
 export default function HomePage() {
   const loginFormRef = useRef<HTMLDivElement>(null)
   const router = useRouter()
+  const { t } = useLanguage()
 
   const [isCheckingAuth, setIsCheckingAuth] = useState(true)
   const [isClient, setIsClient] = useState(false)
@@ -89,7 +91,7 @@ export default function HomePage() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500 mx-auto mb-4"></div>
-          <p className="text-gray-600">Checking authentication...</p>
+          <p className="text-gray-600">{t('home.loading')}</p>
         </div>
       </div>
     )
@@ -128,7 +130,7 @@ export default function HomePage() {
                           textShadow: "-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000"
                         }}
                       >
-                        Know your daily outfit cost
+                        {t('home.title')}
                       </span>
                     </span>
                   </h1>
@@ -145,7 +147,7 @@ export default function HomePage() {
                           textShadow: "-0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000"
                         }}
                       >
-                        Upload your wardrobe
+                        {t('home.uploadWardrobe')}
                       </span>
                       <span 
                         className="text-white font-black"
@@ -153,7 +155,7 @@ export default function HomePage() {
                           textShadow: "-0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000"
                         }}
                       >
-                        →Build your personal closet
+                        {t('home.buildCloset')}
                       </span>
                     </p>
                   </div>
@@ -167,7 +169,7 @@ export default function HomePage() {
                           textShadow: "-0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000"
                         }}
                       >
-                        Track cost-per-wear so you know what's worth keeping
+                        {t('home.trackCost')}
                       </span>
                     </p>
                   </div>
@@ -181,7 +183,7 @@ export default function HomePage() {
                           textShadow: "-0.5px -0.5px 0 #000, 0.5px -0.5px 0 #000, -0.5px 0.5px 0 #000, 0.5px 0.5px 0 #000"
                         }}
                       >
-                        Get your first free analysis in less than a minute
+                        {t('home.freeAnalysis')}
                       </span>
                     </p>
                   </div>

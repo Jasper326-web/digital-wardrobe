@@ -8,6 +8,14 @@ type Language = 'zh' | 'en'
 // 翻译内容
 const translations = {
   zh: {
+    // 首页
+    'home.title': '了解你的每日穿搭成本',
+    'home.uploadWardrobe': '上传你的衣柜',
+    'home.buildCloset': '→ 建立你的个人衣橱',
+    'home.trackCost': '追踪每次穿着成本，了解什么值得保留',
+    'home.freeAnalysis': '在一分钟内获得你的首次免费分析',
+    'home.loading': '检查认证状态...',
+    
     // 导航
     'nav.home': '首页',
     'nav.wardrobe': '衣柜',
@@ -26,6 +34,10 @@ const translations = {
     'login.or': '或',
     'login.noAccount': '还没有账户？',
     'login.signup': '注册',
+    'login.continue': '继续到你的衣柜 →',
+    'login.checking': '检查认证状态...',
+    'login.processing': '处理中...',
+    'login.waitMessage': '如果已有账户，我们会为你登录',
     
     // 衣柜页面
     'wardrobe.title': '我的衣柜',
@@ -83,6 +95,14 @@ const translations = {
     'language.switch': '切换语言',
   },
   en: {
+    // Home page
+    'home.title': 'Know your daily outfit cost',
+    'home.uploadWardrobe': 'Upload your wardrobe',
+    'home.buildCloset': '→ Build your personal closet',
+    'home.trackCost': 'Track cost-per-wear so you know what\'s worth keeping',
+    'home.freeAnalysis': 'Get your first free analysis in less than a minute',
+    'home.loading': 'Checking authentication...',
+    
     // Navigation
     'nav.home': 'Home',
     'nav.wardrobe': 'Wardrobe',
@@ -101,6 +121,10 @@ const translations = {
     'login.or': 'or',
     'login.noAccount': "Don't have an account?",
     'login.signup': 'Sign up',
+    'login.continue': 'Continue to your wardrobe →',
+    'login.checking': 'Checking authentication...',
+    'login.processing': 'Processing...',
+    'login.waitMessage': 'If you already have an account, we\'ll log you in',
     
     // Wardrobe page
     'wardrobe.title': 'My Wardrobe',
