@@ -131,7 +131,7 @@ export function LoginForm() {
         ✨ {t('home.freeAnalysis')}
       </div>
 
-      <Card className="w-full max-w-sm sm:max-w-md p-6 sm:p-8 bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl relative overflow-hidden">
+      <Card className="w-full max-w-sm sm:max-w-md min-w-[320px] p-6 sm:p-8 bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl shadow-2xl relative overflow-hidden">
         {/* Gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/10 via-transparent to-teal-500/10 rounded-3xl"></div>
         {/* Content wrapper */}
@@ -150,19 +150,21 @@ export function LoginForm() {
               placeholder={t('login.email')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="h-12 sm:h-14 text-sm sm:text-base bg-white/90 backdrop-blur-sm border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-orange-400 transition-all duration-300"
+              className="w-full h-12 sm:h-14 text-sm sm:text-base bg-white/90 backdrop-blur-sm border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-orange-400 transition-all duration-300"
               required
               disabled={isEmailLoading || countdown > 0}
             />
 
             <Button
               type="submit"
-              className="w-full h-12 sm:h-14 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full h-12 sm:h-14 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed min-w-0"
               disabled={isEmailLoading || countdown > 0}
             >
-              {isEmailLoading ? t('login.checking') : 
-               countdown > 0 ? `Wait ${countdown}s before trying again` : 
-               t('login.continue')}
+              <span className="truncate">
+                {isEmailLoading ? t('login.checking') : 
+                 countdown > 0 ? `Wait ${countdown}s before trying again` : 
+                 t('login.continue')}
+              </span>
             </Button>
           </form>
 
@@ -179,10 +181,10 @@ export function LoginForm() {
             type="button"
             variant="outline"
             onClick={handleGoogleLogin}
-            className="w-full h-12 sm:h-14 bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-900 font-semibold rounded-2xl hover:bg-white transition-all duration-300 transform hover:scale-[1.02] shadow-lg"
+            className="w-full h-12 sm:h-14 bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-900 font-semibold rounded-2xl hover:bg-white transition-all duration-300 transform hover:scale-[1.02] shadow-lg min-w-0"
             disabled={isGoogleLoading}
           >
-            <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 flex-shrink-0" viewBox="0 0 24 24">
               <path
                 fill="#4285F4"
                 d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -200,7 +202,9 @@ export function LoginForm() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            {isGoogleLoading ? t('login.processing') : t('login.google')}
+            <span className="truncate">
+              {isGoogleLoading ? t('login.processing') : t('login.google')}
+            </span>
           </Button>
 
           <p className="text-xs text-gray-600 mt-4 text-center">
