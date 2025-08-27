@@ -14,6 +14,7 @@ export default function CallbackClient() {
         await supabase.auth.exchangeCodeForSession(window.location.href).catch(() => {})
 
         const loginToken = sp.get('loginToken')
+        const confirmOnly = sp.get('confirmOnly') === '1'
         if (loginToken) {
           const channel = supabase.channel(`login:${loginToken}`, { config: { broadcast: { ack: true } } })
           await channel.subscribe()
@@ -22,7 +23,13 @@ export default function CallbackClient() {
         }
 
         const { data: { session } } = await supabase.auth.getSession()
-        if (session) {
+        if (confirmOnly) {
+          // 确认模式：广播后立即登出，并跳到确认页
+          if (session) {
+            await supabase.auth.signOut().catch(() => {})
+          }
+          router.replace('/auth/confirmed')
+        } else if (session) {
           document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
           router.replace('/wardrobe')
         } else {

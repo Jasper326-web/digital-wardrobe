@@ -81,6 +81,8 @@ export function LoginForm() {
       const base = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
       const redirectUrl = new URL(`${base}/auth/callback`)
       redirectUrl.searchParams.set('loginToken', loginToken)
+      // 确认模式：手机端仅确认，不保持登录
+      redirectUrl.searchParams.set('confirmOnly', '1')
 
       const { error } = await supabase.auth.signInWithOtp({
         email,
