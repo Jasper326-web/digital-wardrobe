@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { supabase } from "@/lib/supabase"
+import { useLanguage } from "@/lib/lang-context"
 
 export function LoginForm() {
   const [email, setEmail] = useState("")
@@ -16,6 +17,7 @@ export function LoginForm() {
   const [errorMessage, setErrorMessage] = useState("")
   const [isClient, setIsClient] = useState(false)
   const [countdown, setCountdown] = useState(0)
+  const { t } = useLanguage()
 
   // 确保只在客户端运行
   useEffect(() => {
@@ -145,7 +147,7 @@ export function LoginForm() {
           <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6 mb-6">
             <Input
               type="email"
-              placeholder="Type your email..."
+              placeholder={t('login.email')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="h-12 sm:h-14 text-sm sm:text-base bg-white/90 backdrop-blur-sm border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-orange-400 transition-all duration-300"
@@ -169,7 +171,7 @@ export function LoginForm() {
               <span className="w-full border-t border-white/30"></span>
             </div>
             <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-transparent px-2 text-black font-medium">or</span>
+              <span className="bg-transparent px-2 text-black font-medium">{t('login.or')}</span>
             </div>
           </div>
 
@@ -198,7 +200,7 @@ export function LoginForm() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            {isGoogleLoading ? "Processing..." : "Continue with Google"}
+            {isGoogleLoading ? "Processing..." : t('login.google')}
           </Button>
 
           <p className="text-xs text-gray-600 mt-4 text-center">

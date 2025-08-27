@@ -6,11 +6,13 @@ import { useState, useEffect } from "react"
 import { cn } from "@/lib/utils"
 import { UserAvatar } from "./user-avatar"
 import { supabase } from "@/lib/supabase"
+import { LanguageSwitcher } from "./language-switcher"
+import { useLanguage } from "@/lib/lang-context"
 
 const navItems = [
-  { href: "/wardrobe", label: "My Wardrobe" },
-  { href: "/outfit", label: "Today's Outfit" },
-  { href: "/analytics", label: "Analytics" },
+  { href: "/wardrobe", labelKey: "nav.wardrobe" },
+  { href: "/outfit", labelKey: "nav.outfit" },
+  { href: "/analytics", labelKey: "nav.analytics" },
 ]
 
 interface NavigationProps {
@@ -22,6 +24,7 @@ export function Navigation({ onProtectedLinkClick }: NavigationProps) {
   const isLoginPage = pathname === "/"
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [isClient, setIsClient] = useState(false)
+  const { t } = useLanguage()
 
   useEffect(() => {
     setIsClient(true)
@@ -95,14 +98,17 @@ export function Navigation({ onProtectedLinkClick }: NavigationProps) {
                       : "text-gray-900/90 hover:text-emerald-600",
                   )}
                 >
-                  {item.label}
+                  {t(item.labelKey)}
                 </Link>
               ))}
             </div>
           </div>
 
-          {/* User Avatar and Mobile menu */}
+          {/* User Avatar, Language Switcher and Mobile menu */}
           <div className="flex items-center space-x-4">
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+            
             {/* User Avatar */}
             {isLoggedIn && <UserAvatar />}
             
@@ -121,7 +127,7 @@ export function Navigation({ onProtectedLinkClick }: NavigationProps) {
                         : "text-gray-900/90 hover:text-emerald-600",
                     )}
                   >
-                    {item.label}
+                    {t(item.labelKey)}
                   </Link>
                 ))}
               </div>
