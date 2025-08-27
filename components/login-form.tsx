@@ -78,7 +78,8 @@ export function LoginForm() {
     setIsEmailLoading(true)
     setErrorMessage("")
     try {
-      const redirectUrl = new URL(`${window.location.origin}/auth/callback`)
+      const base = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+      const redirectUrl = new URL(`${base}/auth/callback`)
       redirectUrl.searchParams.set('loginToken', loginToken)
 
       const { error } = await supabase.auth.signInWithOtp({
@@ -109,9 +110,11 @@ export function LoginForm() {
     setIsGoogleLoading(true)
     setErrorMessage("")
     try {
+      const base = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
+      const redirectTo = `${base}/auth/callback?loginToken=${loginToken}`
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: { redirectTo },
       })
       if (error) setErrorMessage('Failed to start Google login. Please try again.')
     } catch (error) {
