@@ -15,4 +15,8 @@ compatibility_flags = ["nodejs_compat"]
 
 # 构建配置
 [build]
-command = "pnpm build:pages"
+command = "pnpm build:cloudflare"
+
+# 环境变量
+[vars]
+NODE_ENV = "production"

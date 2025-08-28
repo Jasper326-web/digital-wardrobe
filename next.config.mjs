@@ -28,6 +28,9 @@ const nextConfig = {
   // Cloudflare Pages特定配置
   trailingSlash: false,
   skipTrailingSlashRedirect: true,
+  // 禁用一些可能导致问题的功能
+  swcMinify: true,
+  reactStrictMode: false,
 }
 
 export default nextConfig
