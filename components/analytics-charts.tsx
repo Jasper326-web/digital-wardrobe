@@ -1,6 +1,7 @@
 "use client"
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { useLanguage } from "@/lib/lang-context"
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart"
 import { Bar, BarChart, Cell, Pie, PieChart, ResponsiveContainer, XAxis, YAxis } from "recharts"
 
@@ -46,28 +47,29 @@ const pieColors = {
 }
 
 export function AnalyticsCharts({ items }: AnalyticsChartsProps) {
+  const { t, formatCurrency } = useLanguage()
   // 处理空数组的情况
   if (items.length === 0) {
     return (
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
           <CardHeader>
-            <CardTitle>Most Worn Items</CardTitle>
+            <CardTitle>{t('analytics.mostWornItem')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[300px] flex items-center justify-center">
-              <p className="text-muted-foreground">No items to display</p>
+              <p className="text-muted-foreground">{t('analytics.noItemsYet') || 'No items to display'}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle>Wardrobe Value Analysis</CardTitle>
+            <CardTitle>{t('analytics.wardrobeSummary')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-[300px] flex items-center justify-center">
-              <p className="text-muted-foreground">No items to display</p>
+              <p className="text-muted-foreground">{t('analytics.noItemsYet') || 'No items to display'}</p>
             </div>
           </CardContent>
         </Card>
@@ -116,7 +118,7 @@ export function AnalyticsCharts({ items }: AnalyticsChartsProps) {
       {/* Bar Chart - Wears per Item */}
       <Card>
         <CardHeader>
-          <CardTitle>Most Worn Items</CardTitle>
+          <CardTitle>{t('analytics.mostWornItem')}</CardTitle>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig} className="h-[300px]">
@@ -141,15 +143,15 @@ export function AnalyticsCharts({ items }: AnalyticsChartsProps) {
           <div className="flex justify-center space-x-6 mt-4">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: categoryColors.tops }}></div>
-              <span className="text-sm">Tops</span>
+              <span className="text-sm">{t('wardrobe.tops')}</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: categoryColors.pants }}></div>
-              <span className="text-sm">Pants</span>
+              <span className="text-sm">{t('wardrobe.pants')}</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: categoryColors.shoes }}></div>
-              <span className="text-sm">Shoes</span>
+              <span className="text-sm">{t('wardrobe.shoes')}</span>
             </div>
           </div>
         </CardContent>
@@ -158,7 +160,7 @@ export function AnalyticsCharts({ items }: AnalyticsChartsProps) {
       {/* Pie Chart - Value Analysis */}
       <Card>
         <CardHeader>
-          <CardTitle>Wardrobe Value Analysis</CardTitle>
+          <CardTitle>{t('analytics.wardrobeSummary')}</CardTitle>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig} className="h-[300px]">
@@ -184,7 +186,7 @@ export function AnalyticsCharts({ items }: AnalyticsChartsProps) {
                       return (
                         <div className="bg-background border rounded-lg p-2 shadow-md">
                           <p className="font-medium">{data.name}</p>
-                          <p className="text-primary">${Number(data.value).toFixed(2)}</p>
+                          <p className="text-primary">{formatCurrency(Number(data.value))}</p>
                         </div>
                       )
                     }
@@ -199,11 +201,11 @@ export function AnalyticsCharts({ items }: AnalyticsChartsProps) {
           <div className="flex justify-center space-x-6 mt-4">
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: pieColors.remaining }}></div>
-              <span className="text-sm">Remaining Value</span>
+              <span className="text-sm">{t('analytics.remainingValue') || 'Remaining Value'}</span>
             </div>
             <div className="flex items-center space-x-2">
               <div className="w-3 h-3 rounded-full" style={{ backgroundColor: pieColors.consumed }}></div>
-              <span className="text-sm">Consumed Value</span>
+              <span className="text-sm">{t('analytics.consumedValue') || 'Consumed Value'}</span>
             </div>
           </div>
         </CardContent>

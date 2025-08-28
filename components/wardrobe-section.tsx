@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Plus, X } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useLanguage } from "@/lib/lang-context"
 
 interface ClothingItem {
   id: string
@@ -35,6 +36,24 @@ export function WardrobeSection({
   onAddItem,
   onDeleteItem 
 }: WardrobeSectionProps) {
+  const { t, formatCurrency } = useLanguage()
+  
+  const commonTags = [
+    "casual",
+    "formal",
+    "work",
+    "summer",
+    "winter",
+    "sport",
+    "date",
+    "workout",
+    "versatile",
+    "cozy",
+    "smart-casual",
+    "comfort",
+    "exercise",
+  ]
+  
   const calculateCostPerWear = (price: number, usage: number) => {
     return (price / (usage + 1)).toFixed(2)
   }
@@ -48,7 +67,9 @@ export function WardrobeSection({
         </h2>
         <Button onClick={() => onAddItem(category)} className="flex items-center gap-2">
           <Plus className="w-4 h-4" />
-          Add {title.slice(0, -1)}
+          {category === 'tops' ? t('wardrobe.addTop') : 
+           category === 'pants' ? t('wardrobe.addPant') : 
+           t('wardrobe.addShoe')}
         </Button>
       </div>
 
@@ -93,16 +114,16 @@ export function WardrobeSection({
                 <h3 className="font-semibold text-lg truncate">{item.name}</h3>
                 
                 <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">{item.usageCount} wears</span>
+                  <span className="text-muted-foreground">{item.usageCount} {t('wardrobe.wears')}</span>
                   <span className="font-semibold text-primary">
-                    ${calculateCostPerWear(item.originalPrice, item.usageCount)}/wear
+                    {formatCurrency(calculateCostPerWear(item.originalPrice, item.usageCount))}/{t('analytics.perWear')}
                   </span>
                 </div>
 
                 <div className="flex flex-wrap gap-1">
                   {item.tags.slice(0, 3).map((tag) => (
                     <Badge key={tag} variant="secondary" className="text-xs">
-                      {tag}
+                      {commonTags.includes(tag) ? t(`wardrobe.tag.${tag}`) : tag}
                     </Badge>
                   ))}
                   {item.tags.length > 3 && (
@@ -119,9 +140,17 @@ export function WardrobeSection({
 
       {items.length === 0 && (
         <div className="text-center py-12">
-          <div className="text-4xl mb-4">👕</div>
-          <h3 className="text-lg font-semibold mb-2">No {title} yet</h3>
-          <p className="text-muted-foreground mb-4">Start building your wardrobe by adding your first {title.slice(0, -1).toLowerCase()}.</p>
+          <div className="text-4xl mb-4">{emoji}</div>
+          <h3 className="text-lg font-semibold mb-2">
+            {category === 'tops' ? t('wardrobe.noTops') : 
+             category === 'pants' ? t('wardrobe.noPants') : 
+             t('wardrobe.noShoes')}
+          </h3>
+          <p className="text-muted-foreground mb-4">
+            {category === 'tops' ? t('wardrobe.startBuildingTop') : 
+             category === 'pants' ? t('wardrobe.startBuildingPant') : 
+             t('wardrobe.startBuildingShoe')}
+          </p>
         </div>
       )}
     </div>

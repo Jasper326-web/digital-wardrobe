@@ -1,6 +1,7 @@
 "use client"
 
 import { Card, CardContent } from "@/components/ui/card"
+import { useLanguage } from "@/lib/lang-context"
 
 interface ClothingItem {
   id: string
@@ -21,10 +22,12 @@ interface OutfitMannequinProps {
 }
 
 export function OutfitMannequin({ selectedItems }: OutfitMannequinProps) {
+  const { t } = useLanguage()
+  
   return (
     <div className="space-y-4">
       <div className="text-center">
-        <h3 className="text-lg font-semibold text-white mb-2">Today's Outfit</h3>
+        <h3 className="text-lg font-semibold text-white mb-2">{t('outfit.todaysOutfit')}</h3>
       </div>
 
       <div className="flex flex-col items-center space-y-5">
@@ -47,7 +50,7 @@ export function OutfitMannequin({ selectedItems }: OutfitMannequinProps) {
             ) : (
               <div className="text-center">
                 <span className="text-5xl">👕</span>
-                <p className="text-base text-white/80 mt-3">Select Top</p>
+                <p className="text-base text-white/80 mt-3">{t('outfit.selectTop')}</p>
               </div>
             )}
           </CardContent>
@@ -72,7 +75,7 @@ export function OutfitMannequin({ selectedItems }: OutfitMannequinProps) {
             ) : (
               <div className="text-center">
                 <span className="text-5xl">👖</span>
-                <p className="text-base text-white/80 mt-3">Select Pants</p>
+                <p className="text-base text-white/80 mt-3">{t('outfit.selectPants')}</p>
               </div>
             )}
           </CardContent>
@@ -97,7 +100,7 @@ export function OutfitMannequin({ selectedItems }: OutfitMannequinProps) {
             ) : (
               <div className="text-center">
                 <span className="text-4xl">👟</span>
-                <p className="text-base text-white/80 mt-3">Select Shoes</p>
+                <p className="text-base text-white/80 mt-3">{t('outfit.selectShoes')}</p>
               </div>
             )}
           </CardContent>

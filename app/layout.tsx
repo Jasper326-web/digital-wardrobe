@@ -3,6 +3,7 @@ import type { Metadata } from "next"
 import { Playfair_Display, Source_Sans_3 as Source_Sans_Pro } from "next/font/google"
 import "./globals.css"
 import { LanguageProvider } from "@/lib/lang-context"
+import { PreloadManager } from "@/components/preload-manager"
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -37,7 +38,9 @@ export default function RootLayout({
     <html lang="en">
       <body className={`${playfair.variable} ${sourceSans.variable} antialiased`}>
         <LanguageProvider>
-          {children}
+          <PreloadManager>
+            {children}
+          </PreloadManager>
         </LanguageProvider>
       </body>
     </html>

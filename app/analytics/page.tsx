@@ -2,12 +2,13 @@
 
 import { useState, useEffect } from "react"
 import { Navigation } from "@/components/navigation"
-import { AnalyticsStats } from "@/components/analytics-stats"
-import { AnalyticsCharts } from "@/components/analytics-charts"
+import { LazyAnalyticsStats } from "@/components/lazy-loading"
+import { LazyAnalyticsCharts } from "@/components/lazy-loading"
 import { PageHeader } from "@/components/page-header"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { getClothingItems } from "@/lib/database"
 import { checkSupabaseConnection } from "@/lib/supabase"
+import { useLanguage } from "@/lib/lang-context"
 
 interface ClothingItem {
   id: string
@@ -21,6 +22,7 @@ interface ClothingItem {
 }
 
 export default function AnalyticsPage() {
+  const { t } = useLanguage()
   const [items, setItems] = useState<ClothingItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -55,7 +57,7 @@ export default function AnalyticsPage() {
         return
       }
       
-      setError('Failed to load analytics data. Please try again.')
+      setError(t('error.failedToLoad') || 'Failed to load analytics data. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -82,16 +84,16 @@ export default function AnalyticsPage() {
 
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PageHeader 
-          title="Analytics"
-          description="Track your wardrobe usage and spending insights"
+          title={t('analytics.title')}
+          description={t('analytics.subtitle')}
           icon="📊"
         />
 
         {isLoading ? (
           <LoadingSpinner 
             size="lg"
-            text="Loading analytics..."
-            subtext="Connecting to database and fetching your data"
+            text={t('common.loading')}
+            subtext={t('common.connecting')}
           />
         ) : error ? (
           <div className="flex justify-center items-center py-12">
@@ -101,17 +103,17 @@ export default function AnalyticsPage() {
                 onClick={loadAnalyticsData}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
               >
-                Try Again
+                {t('error.tryAgain') || 'Try Again'}
               </button>
             </div>
           </div>
         ) : (
           <div className="space-y-8">
             {/* Stats Cards */}
-            <AnalyticsStats items={items} />
+            <LazyAnalyticsStats items={items} />
 
             {/* Charts */}
-            <AnalyticsCharts items={items} />
+            <LazyAnalyticsCharts items={items} />
           </div>
         )}
       </main>

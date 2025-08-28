@@ -1,6 +1,7 @@
 "use client"
 
 import { cn } from "@/lib/utils"
+import { useLanguage } from "@/lib/lang-context"
 
 interface LoadingSpinnerProps {
   size?: "sm" | "md" | "lg"
@@ -11,10 +12,11 @@ interface LoadingSpinnerProps {
 
 export function LoadingSpinner({ 
   size = "md", 
-  text = "Loading...", 
+  text,
   subtext,
   className 
 }: LoadingSpinnerProps) {
+  const { t } = useLanguage()
   const sizeClasses = {
     sm: "h-8 w-8",
     md: "h-12 w-12", 
@@ -38,7 +40,7 @@ export function LoadingSpinner({
         
         {/* 加载文字 */}
         <div className={cn("text-white font-semibold mb-2", textSizes[size])}>
-          {text}
+          {text ?? t('common.loading')}
         </div>
         
         {/* 副标题 */}

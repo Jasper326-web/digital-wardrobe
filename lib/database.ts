@@ -1,4 +1,5 @@
 import { supabase } from './supabase'
+import { cache, CACHE_KEYS } from './cache'
 
 export interface ClothingItem {
   id: string
@@ -15,6 +16,13 @@ export interface ClothingItem {
 
 // 获取用户的衣物项目
 export const getClothingItems = async (): Promise<ClothingItem[]> => {
+  // 检查缓存
+  const cachedData = cache.get(CACHE_KEYS.CLOTHING_ITEMS)
+  if (cachedData) {
+    console.log('Using cached clothing items')
+    return cachedData
+  }
+
   let retryCount = 0
   const maxRetries = 3
 
@@ -54,7 +62,12 @@ export const getClothingItems = async (): Promise<ClothingItem[]> => {
         throw error
       }
 
-      return data || []
+      const result = data || []
+      
+      // 缓存结果
+      cache.set(CACHE_KEYS.CLOTHING_ITEMS, result, 2 * 60 * 1000) // 2分钟缓存
+      
+      return result
     } catch (error) {
       retryCount++
       console.error(`Attempt ${retryCount} failed:`, error)
@@ -115,6 +128,9 @@ export const createClothingItem = async (item: Omit<ClothingItem, 'id' | 'create
     throw error
   }
 
+  // 清除缓存，强制重新获取数据
+  cache.delete(CACHE_KEYS.CLOTHING_ITEMS)
+
   return data
 }
 
@@ -154,6 +170,9 @@ export const updateClothingItem = async (id: string, updates: Partial<ClothingIt
     throw error
   }
 
+  // 清除缓存，强制重新获取数据
+  cache.delete(CACHE_KEYS.CLOTHING_ITEMS)
+
   return data
 }
 
@@ -190,6 +209,9 @@ export const deleteClothingItem = async (id: string): Promise<void> => {
     console.error('Error deleting item:', error)
     throw error
   }
+
+  // 清除缓存，强制重新获取数据
+  cache.delete(CACHE_KEYS.CLOTHING_ITEMS)
 }
 
 // 增加使用次数

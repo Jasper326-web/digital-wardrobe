@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Check } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { useLanguage } from "@/lib/lang-context"
 
 interface ClothingItem {
   id: string
@@ -28,14 +29,31 @@ interface OutfitSelectorProps {
   onItemSelect: (item: ClothingItem, category: string) => void
 }
 
-const categories = [
-  { key: "tops", label: "Tops", emoji: "👕" },
-  { key: "pants", label: "Pants", emoji: "👖" },
-  { key: "shoes", label: "Shoes", emoji: "👟" },
-]
-
 export function OutfitSelector({ items, selectedItems, onItemSelect }: OutfitSelectorProps) {
+  const { t, formatCurrency } = useLanguage()
   const [activeCategory, setActiveCategory] = useState("tops")
+  
+  const categories = [
+    { key: "tops", label: t('wardrobe.tops'), emoji: "👕" },
+    { key: "pants", label: t('wardrobe.pants'), emoji: "👖" },
+    { key: "shoes", label: t('wardrobe.shoes'), emoji: "👟" },
+  ]
+  
+  const commonTags = [
+    "casual",
+    "formal",
+    "work",
+    "summer",
+    "winter",
+    "sport",
+    "date",
+    "workout",
+    "versatile",
+    "cozy",
+    "smart-casual",
+    "comfort",
+    "exercise",
+  ]
 
   // 使用 useMemo 优化过滤性能
   const filteredItems = React.useMemo(() => 
@@ -120,7 +138,7 @@ export function OutfitSelector({ items, selectedItems, onItemSelect }: OutfitSel
                       {isSelected(item) && (
                         <div className="flex items-center gap-1 animate-pulse">
                           <Check className="w-4 h-4 text-emerald-600 flex-shrink-0 animate-bounce" />
-                          <span className="text-sm text-emerald-700 font-medium">Selected</span>
+                          <span className="text-sm text-emerald-700 font-medium">{t('outfit.selected')}</span>
                         </div>
                       )}
                     </div>
@@ -129,17 +147,17 @@ export function OutfitSelector({ items, selectedItems, onItemSelect }: OutfitSel
                       <span className={cn(
                         "transition-colors duration-200",
                         isSelected(item) ? "text-emerald-700 font-medium" : "text-muted-foreground"
-                      )}>{item.usageCount} wears</span>
+                      )}>{item.usageCount} {t('outfit.wears')}</span>
                       <span className={cn(
                         "font-semibold transition-colors duration-200 text-sm",
                         isSelected(item) ? "text-emerald-700" : "text-primary"
                       )}>
-                        ${calculateCostPerWear(item.originalPrice, item.usageCount)}
+                        {formatCurrency(calculateCostPerWear(item.originalPrice, item.usageCount))}
                       </span>
                     </div>
 
                     <div className="flex flex-wrap gap-1 mt-1">
-                      {item.tags.slice(0, 2).map((tag) => (
+                      {item.tags.map((tag) => (
                         <Badge 
                           key={tag} 
                           variant={isSelected(item) ? "default" : "secondary"} 
@@ -148,20 +166,9 @@ export function OutfitSelector({ items, selectedItems, onItemSelect }: OutfitSel
                             isSelected(item) ? "bg-emerald-100 text-emerald-800 border-emerald-300" : ""
                           )}
                         >
-                          {tag}
+                          {commonTags.includes(tag) ? t(`wardrobe.tag.${tag}`) : tag}
                         </Badge>
                       ))}
-                      {item.tags.length > 2 && (
-                        <Badge 
-                          variant={isSelected(item) ? "default" : "outline"} 
-                          className={cn(
-                            "text-sm px-2 py-1 rounded-full transition-colors duration-200",
-                            isSelected(item) ? "bg-emerald-100 text-emerald-800 border-emerald-300" : ""
-                          )}
-                        >
-                          +{item.tags.length - 2}
-                        </Badge>
-                      )}
                     </div>
                   </div>
                 </div>

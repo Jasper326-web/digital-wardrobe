@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { CheckCircle, TrendingUp, Sparkles } from "lucide-react"
+import { useLanguage } from "@/lib/lang-context"
 
 interface SuccessModalProps {
   isOpen: boolean
@@ -12,6 +13,7 @@ interface SuccessModalProps {
 
 export function SuccessModal({ isOpen, onClose, itemCount, totalCost }: SuccessModalProps) {
   const [showContent, setShowContent] = useState(false)
+  const { t, formatCurrency } = useLanguage()
 
   useEffect(() => {
     if (isOpen) {
@@ -60,12 +62,12 @@ export function SuccessModal({ isOpen, onClose, itemCount, totalCost }: SuccessM
 
           {/* 标题 */}
           <h3 className="text-2xl font-bold text-gray-900 mb-2">
-            Outfit Confirmed! 🎉
+            {t('success.outfitConfirmed')}
           </h3>
 
           {/* 描述 */}
           <p className="text-gray-600 mb-6">
-            Your daily outfit has been saved successfully!
+            {t('success.outfitSaved')}
           </p>
 
           {/* 统计信息 */}
@@ -73,11 +75,11 @@ export function SuccessModal({ isOpen, onClose, itemCount, totalCost }: SuccessM
             <div className="grid grid-cols-2 gap-4 text-center">
               <div>
                 <div className="text-2xl font-bold text-emerald-600">{itemCount}</div>
-                <div className="text-sm text-gray-600">Items Updated</div>
+                <div className="text-sm text-gray-600">{t('success.itemsUpdated')}</div>
               </div>
               <div>
-                <div className="text-2xl font-bold text-blue-600">${totalCost}</div>
-                <div className="text-sm text-gray-600">Today's Cost</div>
+                <div className="text-2xl font-bold text-blue-600">{formatCurrency(totalCost)}</div>
+                <div className="text-sm text-gray-600">{t('success.todaysCost')}</div>
               </div>
             </div>
           </div>
@@ -85,7 +87,7 @@ export function SuccessModal({ isOpen, onClose, itemCount, totalCost }: SuccessM
           {/* 成功消息 */}
           <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 mb-6">
             <p className="text-sm text-emerald-800 font-medium">
-              ✓ Usage counts increased by 1 for all selected items
+              {t('success.usageCountsIncreased')}
             </p>
           </div>
 
@@ -94,7 +96,7 @@ export function SuccessModal({ isOpen, onClose, itemCount, totalCost }: SuccessM
             onClick={onClose}
             className="w-full bg-gradient-to-r from-emerald-500 to-blue-500 text-white font-semibold py-3 px-6 rounded-xl hover:from-emerald-600 hover:to-blue-600 transition-all duration-200 transform hover:scale-105"
           >
-            Got it!
+            {t('success.gotIt')}
           </button>
         </div>
       </div>

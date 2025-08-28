@@ -3,6 +3,7 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { TrendingUp, TrendingDown, Award } from "lucide-react"
+import { useLanguage } from "@/lib/lang-context"
 
 interface ClothingItem {
   id: string
@@ -19,53 +20,54 @@ interface AnalyticsStatsProps {
 }
 
 export function AnalyticsStats({ items }: AnalyticsStatsProps) {
+  const { t, formatCurrency } = useLanguage()
   // 处理空数组的情况
   if (items.length === 0) {
     return (
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Most Worn Item</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('analytics.mostWornItem')}</CardTitle>
             <Award className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-center py-4">
-              <p className="text-sm text-muted-foreground">No items yet</p>
+              <p className="text-sm text-muted-foreground">{t('analytics.noItemsYet') || 'No items yet'}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Best Value</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('analytics.bestValue')}</CardTitle>
             <TrendingDown className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
             <div className="text-center py-4">
-              <p className="text-sm text-muted-foreground">No items yet</p>
+              <p className="text-sm text-muted-foreground">{t('analytics.noItemsYet') || 'No items yet'}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Needs More Wear</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('analytics.needsMoreWear')}</CardTitle>
             <TrendingUp className="h-4 w-4 text-orange-600" />
           </CardHeader>
           <CardContent>
             <div className="text-center py-4">
-              <p className="text-sm text-muted-foreground">No items yet</p>
+              <p className="text-sm text-muted-foreground">{t('analytics.noItemsYet') || 'No items yet'}</p>
             </div>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Wardrobe Summary</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('analytics.wardrobeSummary')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-center py-4">
-              <p className="text-sm text-muted-foreground">No items yet</p>
+              <p className="text-sm text-muted-foreground">{t('analytics.noItemsYet') || 'No items yet'}</p>
             </div>
           </CardContent>
         </Card>
@@ -98,13 +100,13 @@ export function AnalyticsStats({ items }: AnalyticsStatsProps) {
       {/* Most Worn Item */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Most Worn Item</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('analytics.mostWornItem')}</CardTitle>
           <Award className="h-4 w-4 text-muted-foreground" />
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             <div className="text-2xl font-bold text-primary">{mostWornItem.usageCount}</div>
-            <p className="text-xs text-muted-foreground">wears</p>
+            <p className="text-xs text-muted-foreground">{t('analytics.wears')}</p>
             <div className="flex items-center space-x-2">
               <img
                 src={mostWornItem.image || `/placeholder.svg?height=32&width=32&query=${encodeURIComponent(mostWornItem.name)}`}
@@ -118,7 +120,7 @@ export function AnalyticsStats({ items }: AnalyticsStatsProps) {
               <div>
                 <p className="text-sm font-medium truncate">{mostWornItem.name}</p>
                 <Badge variant="secondary" className="text-xs">
-                  {mostWornItem.category}
+                  {t(`wardrobe.${mostWornItem.category}`)}
                 </Badge>
               </div>
             </div>
@@ -129,13 +131,13 @@ export function AnalyticsStats({ items }: AnalyticsStatsProps) {
       {/* Lowest Cost Per Wear */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Best Value</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('analytics.bestValue')}</CardTitle>
           <TrendingDown className="h-4 w-4 text-green-600" />
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <div className="text-2xl font-bold text-green-600">${lowestCostPerWear.costPerWear.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">per wear</p>
+            <div className="text-2xl font-bold text-green-600">{formatCurrency(lowestCostPerWear.costPerWear)}</div>
+            <p className="text-xs text-muted-foreground">{t('analytics.perWear')}</p>
             <div className="flex items-center space-x-2">
               <img
                 src={lowestCostPerWear.image || `/placeholder.svg?height=32&width=32&query=${encodeURIComponent(lowestCostPerWear.name)}`}
@@ -149,7 +151,7 @@ export function AnalyticsStats({ items }: AnalyticsStatsProps) {
               <div>
                 <p className="text-sm font-medium truncate">{lowestCostPerWear.name}</p>
                 <Badge variant="secondary" className="text-xs">
-                  {lowestCostPerWear.category}
+                  {t(`wardrobe.${lowestCostPerWear.category}`)}
                 </Badge>
               </div>
             </div>
@@ -160,13 +162,13 @@ export function AnalyticsStats({ items }: AnalyticsStatsProps) {
       {/* Highest Cost Per Wear */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Needs More Wear</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('analytics.needsMoreWear')}</CardTitle>
           <TrendingUp className="h-4 w-4 text-orange-600" />
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
-            <div className="text-2xl font-bold text-orange-600">${highestCostPerWear.costPerWear.toFixed(2)}</div>
-            <p className="text-xs text-muted-foreground">per wear</p>
+            <div className="text-2xl font-bold text-orange-600">{formatCurrency(highestCostPerWear.costPerWear)}</div>
+            <p className="text-xs text-muted-foreground">{t('analytics.perWear')}</p>
             <div className="flex items-center space-x-2">
               <img
                 src={highestCostPerWear.image || `/placeholder.svg?height=32&width=32&query=${encodeURIComponent(highestCostPerWear.name)}`}
@@ -180,7 +182,7 @@ export function AnalyticsStats({ items }: AnalyticsStatsProps) {
               <div>
                 <p className="text-sm font-medium truncate">{highestCostPerWear.name}</p>
                 <Badge variant="secondary" className="text-xs">
-                  {highestCostPerWear.category}
+                  {t(`wardrobe.${highestCostPerWear.category}`)}
                 </Badge>
               </div>
             </div>
@@ -191,21 +193,21 @@ export function AnalyticsStats({ items }: AnalyticsStatsProps) {
       {/* Wardrobe Summary */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Wardrobe Summary</CardTitle>
+          <CardTitle className="text-sm font-medium">{t('analytics.wardrobeSummary')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div>
-              <div className="text-lg font-bold">${totalWardrobeValue.toFixed(0)}</div>
-              <p className="text-xs text-muted-foreground">Total Value</p>
+              <div className="text-lg font-bold">{formatCurrency(totalWardrobeValue)}</div>
+              <p className="text-xs text-muted-foreground">{t('analytics.totalValue') || 'Total Value'}</p>
             </div>
             <div>
-              <div className="text-lg font-bold text-primary">${averageCostPerWear.toFixed(2)}</div>
-              <p className="text-xs text-muted-foreground">Avg Cost/Wear</p>
+              <div className="text-lg font-bold text-primary">{formatCurrency(averageCostPerWear)}</div>
+              <p className="text-xs text-muted-foreground">{t('analytics.avgCostPerWear')}</p>
             </div>
             <div>
               <div className="text-lg font-bold">{items.length}</div>
-              <p className="text-xs text-muted-foreground">Total Items</p>
+              <p className="text-xs text-muted-foreground">{t('analytics.totalItemsCount')}</p>
             </div>
           </div>
         </CardContent>

@@ -13,6 +13,7 @@ import { LoadingSpinner } from "@/components/loading-spinner"
 import { Minus, Plus, X, Upload, Camera, CameraOff } from "lucide-react"
 import { uploadImage, deleteImage, base64ToFile } from "@/lib/supabase"
 import { CameraPreviewModal } from "@/components/camera-preview-modal"
+import { useLanguage } from "@/lib/lang-context"
 
 interface ClothingItem {
   id: string
@@ -55,6 +56,7 @@ const commonTags = [
 ]
 
 export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemEditModalProps) {
+  const { t, formatCurrency, currencySymbol } = useLanguage()
   const [newTag, setNewTag] = useState("")
   const [uploadedImage, setUploadedImage] = useState<string | null>(null)
   const [isUploading, setIsUploading] = useState(false)
@@ -275,7 +277,7 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>{item ? "Edit Item" : "Add New Item"}</DialogTitle>
+          <DialogTitle>{item ? t('modal.editItem') : t('modal.addNewItem')}</DialogTitle>
         </DialogHeader>
 
         <Form {...form}>
@@ -286,7 +288,7 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
                   <div className="w-64 h-64 bg-muted rounded-lg overflow-hidden relative flex items-center justify-center">
                     <LoadingSpinner 
                       size="sm"
-                      text="Uploading image..."
+                      text={t('common.uploading')}
                       className="text-muted-foreground"
                     />
                   </div>
@@ -305,7 +307,7 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                       <div className="text-white text-center">
                         <Camera className="w-8 h-8 mx-auto mb-2" />
-                        <p className="text-sm">Click to upload image</p>
+                        <p className="text-sm">{t('common.upload')}</p>
                       </div>
                     </div>
                   </div>
@@ -325,7 +327,7 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
                     onClick={handleImageClick}
                   >
                     <Upload className="w-4 h-4 mr-1" />
-                    Upload
+                    {t('common.upload')}
                   </Button>
                   <Button
                     type="button"
@@ -335,7 +337,7 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
                     className="bg-blue-500 hover:bg-blue-600 text-white"
                   >
                     <Camera className="w-4 h-4 mr-1" />
-                    Camera
+                    {t('common.camera')}
                   </Button>
                 </div>
               </div>
@@ -346,9 +348,9 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
               name="name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Item Name</FormLabel>
+                  <FormLabel>{t('common.itemName')}</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} className="border-gray-300 focus:border-orange-400" />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -361,11 +363,12 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
                 name="originalPrice"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Original Price ($)</FormLabel>
+                    <FormLabel>{t('common.originalPriceLabel')} ({currencySymbol})</FormLabel>
                     <FormControl>
                       <Input
                         type="text"
                         placeholder="0"
+                        className="border-gray-300 focus:border-orange-400"
                         value={field.value === undefined || field.value === null ? '' : field.value.toString()}
                         onChange={(e) => {
                           const inputValue = e.target.value
@@ -415,7 +418,7 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
                 name="usageCount"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Usage Count</FormLabel>
+                    <FormLabel>{t('common.usageCount')}</FormLabel>
                     <FormControl>
                       <div className="flex items-center space-x-2">
                         <Button
@@ -430,7 +433,7 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
                         <Input
                           type="number"
                           min="0"
-                          className="text-center"
+                          className="text-center border-gray-300 focus:border-orange-400"
                           {...field}
                           onChange={(e) => field.onChange(Number.parseInt(e.target.value) || 0)}
                         />
@@ -446,30 +449,30 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
             </div>
 
             <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-              <h3 className="font-semibold text-sm text-foreground">Calculated Values</h3>
+              <h3 className="font-semibold text-sm text-foreground">{t('wardrobe.calculatedValues')}</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
                 <div>
-                  <span className="text-muted-foreground">Cost per wear:</span>
-                  <div className="font-semibold text-primary text-lg">${costPerWear}</div>
+                  <span className="text-muted-foreground">{t('wardrobe.costPerWear')}:</span>
+                  <div className="font-semibold text-primary text-lg">{formatCurrency(Number(costPerWear))}</div>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Total used value:</span>
-                  <div className="font-semibold text-foreground">${totalUsedValue}</div>
+                  <span className="text-muted-foreground">{t('wardrobe.totalUsedValue')}:</span>
+                  <div className="font-semibold text-foreground">{formatCurrency(totalUsedValue)}</div>
                 </div>
                 <div>
-                  <span className="text-muted-foreground">Remaining value:</span>
-                  <div className="font-semibold text-foreground">${remainingValue}</div>
+                  <span className="text-muted-foreground">{t('wardrobe.remainingValue')}:</span>
+                  <div className="font-semibold text-foreground">{formatCurrency(remainingValue)}</div>
                 </div>
               </div>
             </div>
 
             <div className="space-y-4">
-              <FormLabel>Tags</FormLabel>
+              <FormLabel>{t('wardrobe.tags')}</FormLabel>
 
               <div className="flex flex-wrap gap-2">
                 {watchedValues.tags.map((tag) => (
                   <Badge key={tag} variant="secondary" className="flex items-center gap-1">
-                    {tag}
+                    {commonTags.includes(tag) ? t(`wardrobe.tag.${tag}`) : tag}
                     <Button
                       type="button"
                       variant="ghost"
@@ -485,7 +488,8 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
 
               <div className="flex gap-2">
                 <Input
-                  placeholder="Add custom tag..."
+                  placeholder={t('wardrobe.addCustomTag')}
+                  className="border-gray-300 focus:border-orange-400"
                   value={newTag}
                   onChange={(e) => setNewTag(e.target.value)}
                   onKeyPress={(e) => {
@@ -496,12 +500,12 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
                   }}
                 />
                 <Button type="button" variant="outline" onClick={handleAddCustomTag}>
-                  Add
+                  {t('common.add')}
                 </Button>
               </div>
 
               <div>
-                <p className="text-sm text-muted-foreground mb-2">Common tags:</p>
+                <p className="text-sm text-muted-foreground mb-2">{t('wardrobe.commonTags')}:</p>
                 <div className="flex flex-wrap gap-2">
                   {commonTags
                     .filter((tag) => !watchedValues.tags.includes(tag))
@@ -514,7 +518,7 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
                         onClick={() => handleAddTag(tag)}
                         className="text-xs"
                       >
-                        {tag}
+                        {t(`wardrobe.tag.${tag}`)}
                       </Button>
                     ))}
                 </div>
@@ -523,9 +527,9 @@ export function ItemEditModal({ item, isOpen, onClose, onSave, category }: ItemE
 
             <DialogFooter className="sticky bottom-0 bg-background pt-4 border-t">
               <Button type="button" variant="outline" onClick={onClose}>
-                Cancel
+                {t('common.cancel')}
               </Button>
-              <Button type="submit">Save Changes</Button>
+              <Button type="submit">{t('wardrobe.saveChanges')}</Button>
             </DialogFooter>
           </form>
         </Form>

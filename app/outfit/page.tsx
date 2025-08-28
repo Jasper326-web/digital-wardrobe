@@ -2,15 +2,16 @@
 
 import { useState, useEffect } from "react"
 import { Navigation } from "@/components/navigation"
-import { OutfitSelector } from "@/components/outfit-selector"
-import { OutfitMannequin } from "@/components/outfit-mannequin"
-import { OutfitSummary } from "@/components/outfit-summary"
+import { LazyOutfitSelector } from "@/components/lazy-loading"
+import { LazyOutfitMannequin } from "@/components/lazy-loading"
+import { LazyOutfitSummary } from "@/components/lazy-loading"
 import { SuccessModal } from "@/components/success-modal"
 import { PageHeader } from "@/components/page-header"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { useToast } from "@/hooks/use-toast"
 import { getClothingItems, updateClothingItem } from "@/lib/database"
 import { checkSupabaseConnection } from "@/lib/supabase"
+import { useLanguage } from "@/lib/lang-context"
 
 interface ClothingItem {
   id: string
@@ -24,6 +25,7 @@ interface ClothingItem {
 }
 
 export default function OutfitPage() {
+  const { t, formatCurrency } = useLanguage()
   const [items, setItems] = useState<ClothingItem[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -66,7 +68,7 @@ export default function OutfitPage() {
         return
       }
       
-      setError('Failed to load outfit data. Please try again.')
+      setError(t('error.failedToLoad') || 'Failed to load outfit data. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -99,54 +101,77 @@ export default function OutfitPage() {
   const handleConfirmOutfit = async () => {
     const selectedItemsArray = Object.values(selectedItems).filter(Boolean) as ClothingItem[]
     
+    if (selectedItemsArray.length === 0) return
+    
     try {
-      // 增加每个选中物品的使用次数
-      await Promise.all(
-        selectedItemsArray.map(async (item) => {
-          await updateClothingItem(item.id, {
-            usage_count: item.usageCount + 1
-          })
-        })
-      )
-
-      // 更新本地状态以反映新的使用次数
-      setItems(prevItems => 
-        prevItems.map(item => {
-          const selectedItem = selectedItemsArray.find(selected => selected.id === item.id)
-          if (selectedItem) {
-            return { ...item, usageCount: item.usageCount + 1 }
-          }
-          return item
-        })
-      )
-
-      // 更新选中的物品状态
-      setSelectedItems(prev => {
-        const updated = { ...prev }
-        Object.keys(updated).forEach(key => {
-          const item = updated[key as keyof typeof updated]
-          if (item) {
-            updated[key as keyof typeof updated] = { ...item, usageCount: item.usageCount + 1 }
-          }
-        })
-        return updated
+      // 立即更新本地状态以提供即时反馈
+      const updatedItems = items.map(item => {
+        const selectedItem = selectedItemsArray.find(selected => selected.id === item.id)
+        if (selectedItem) {
+          return { ...item, usageCount: item.usageCount + 1 }
+        }
+        return item
       })
+      
+      const updatedSelectedItems = Object.keys(selectedItems).reduce((acc, key) => {
+        const item = selectedItems[key as keyof typeof selectedItems]
+        if (item) {
+          acc[key as keyof typeof selectedItems] = { ...item, usageCount: item.usageCount + 1 }
+        }
+        return acc
+      }, { ...selectedItems })
 
-      // 计算今日总成本用于弹窗显示
-      const todayTotalCost = selectedItemsArray.reduce((sum, item) => {
-        const costPerWear = item.originalPrice / (item.usageCount + 1)
-        return sum + costPerWear
-      }, 0).toFixed(2)
+      // 立即更新UI状态
+      setItems(updatedItems)
+      setSelectedItems(updatedSelectedItems)
 
       // 显示成功弹窗
       setShowSuccessModal(true)
       
+      // 后台异步更新数据库
+      Promise.all(
+        selectedItemsArray.map(async (item) => {
+          try {
+            await updateClothingItem(item.id, {
+              usage_count: item.usageCount + 1
+            })
+          } catch (error) {
+            console.error(`Failed to update item ${item.id}:`, error)
+            // 如果更新失败，回滚本地状态
+            setItems(prevItems => 
+              prevItems.map(prevItem => 
+                prevItem.id === item.id 
+                  ? { ...prevItem, usageCount: prevItem.usageCount - 1 }
+                  : prevItem
+              )
+            )
+            setSelectedItems(prev => {
+              const updated = { ...prev }
+              Object.keys(updated).forEach(key => {
+                const item = updated[key as keyof typeof updated]
+                if (item && item.id === item.id) {
+                  updated[key as keyof typeof updated] = { ...item, usageCount: item.usageCount - 1 }
+                }
+              })
+              return updated
+            })
+          }
+        })
+      ).catch(error => {
+        console.error('Failed to update usage counts:', error)
+        toast({
+          title: t('error.updateFailed') || "Update Failed",
+          description: t('error.usageCountsNotUpdated') || "Usage counts couldn't be updated.",
+          variant: "destructive"
+        })
+      })
+      
       console.log("Confirmed outfit:", selectedItems)
     } catch (error) {
-      console.error('Failed to update usage counts:', error)
+      console.error('Failed to confirm outfit:', error)
       toast({
-        title: "Outfit Confirmed!",
-        description: "Today's outfit saved, but usage counts couldn't be updated.",
+        title: t('error.confirmFailed') || "Confirmation Failed",
+        description: t('error.tryAgain') || "Please try again.",
         variant: "destructive"
       })
     }
@@ -169,16 +194,16 @@ export default function OutfitPage() {
 
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 pb-64">
         <PageHeader 
-          title="Today's Outfit"
-          description="Plan and track your daily outfits"
+          title={t('outfit.title')}
+          description={t('outfit.subtitle')}
           icon="👔"
         />
 
         {isLoading ? (
           <LoadingSpinner 
             size="lg"
-            text="Loading your wardrobe..."
-            subtext="Connecting to database and fetching your items"
+            text={t('common.loading')}
+            subtext={t('common.connecting')}
           />
         ) : error ? (
           <div className="flex justify-center items-center py-8">
@@ -188,20 +213,20 @@ export default function OutfitPage() {
                 onClick={loadOutfitData}
                 className="px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 transition-colors"
               >
-                Try Again
+                {t('error.tryAgain') || 'Try Again'}
               </button>
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 xl:grid-cols-5 gap-6 mb-16">
+          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-16">
             {/* Left Side - Item Selector */}
-            <div className="xl:col-span-3">
+            <div className="lg:col-span-3">
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
                 <div className="mb-4">
-                  <h2 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent mb-2">Select Items</h2>
+                  <h2 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent mb-2">{t('outfit.selectItems')}</h2>
                   <div className="w-12 h-0.5 bg-gradient-to-r from-emerald-400 to-blue-500 rounded-full"></div>
                 </div>
-                <OutfitSelector 
+                <LazyOutfitSelector 
                   items={items}
                   selectedItems={selectedItems} 
                   onItemSelect={handleItemSelect} 
@@ -210,33 +235,33 @@ export default function OutfitPage() {
             </div>
 
             {/* Right Side - Mannequin & Summary */}
-            <div className="xl:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-6">
               {/* Mannequin */}
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
-                <OutfitMannequin selectedItems={selectedItems} />
+                <LazyOutfitMannequin selectedItems={selectedItems} />
               </div>
               
               {/* Quick Summary */}
               <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
                 <h3 className="text-lg font-semibold text-black mb-4 flex items-center gap-2">
                   <span>📊</span>
-                  Quick Stats
+                  {t('outfit.outfitSummary')}
                 </h3>
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
-                    <span className="text-black">Items Selected:</span>
+                    <span className="text-black">{t('common.selected') || 'Items Selected:'}</span>
                     <span className="text-black font-semibold">
                       {Object.values(selectedItems).filter(Boolean).length}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-black">Total Value:</span>
+                    <span className="text-black">{t('analytics.totalValue') || 'Total Value:'}</span>
                     <span className="text-black font-semibold">
-                      ${Object.values(selectedItems).filter(Boolean).reduce((sum, item) => sum + item.originalPrice, 0).toFixed(0)}
+                      {formatCurrency(Object.values(selectedItems).filter(Boolean).reduce((sum, item) => sum + item.originalPrice, 0))}
                     </span>
                   </div>
                   <div className="flex justify-between items-center">
-                    <span className="text-black">Total Wears:</span>
+                    <span className="text-black">{t('outfit.totalWears')}</span>
                     <span className="text-black font-semibold">
                       {Object.values(selectedItems).filter(Boolean).reduce((sum, item) => sum + item.usageCount, 0)}
                     </span>
@@ -249,7 +274,7 @@ export default function OutfitPage() {
       </main>
 
       {/* Bottom Summary - Fixed Position */}
-      <OutfitSummary selectedItems={selectedItems} onConfirmOutfit={handleConfirmOutfit} />
+      <LazyOutfitSummary selectedItems={selectedItems} onConfirmOutfit={handleConfirmOutfit} />
 
       {/* Success Modal */}
       <SuccessModal 

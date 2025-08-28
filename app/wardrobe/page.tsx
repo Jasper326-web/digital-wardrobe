@@ -2,13 +2,14 @@
 
 import { useState, useEffect } from "react"
 import { Navigation } from "@/components/navigation"
-import { WardrobeSection } from "@/components/wardrobe-section"
+import { LazyWardrobeSection } from "@/components/lazy-loading"
 import { ItemEditModal } from "@/components/item-edit-modal"
 import { DeleteConfirmModal } from "@/components/delete-confirm-modal"
 import { PageHeader } from "@/components/page-header"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { createClothingItem, updateClothingItem, deleteClothingItem, getClothingItems, ClothingItem as DBClothingItem } from "@/lib/database"
 import { checkSupabaseConnection } from "@/lib/supabase"
+import { useLanguage } from "@/lib/lang-context"
 
 interface ClothingItem {
   id: string
@@ -33,6 +34,7 @@ export default function WardrobePage() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const { t } = useLanguage()
 
   // 加载数据
   useEffect(() => {
@@ -233,16 +235,16 @@ export default function WardrobePage() {
 
       <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <PageHeader 
-          title="My Wardrobe"
-          description="Manage your clothing items and track their usage"
+          title={t('wardrobe.title')}
+          description={t('wardrobe.subtitle')}
           icon="👗"
         />
 
         {isLoading ? (
           <LoadingSpinner 
             size="lg"
-            text="Loading your wardrobe..."
-            subtext="Connecting to database and fetching your items"
+            text={t('common.loading')}
+            subtext={t('common.connecting')}
           />
         ) : error ? (
           <div className="flex justify-center items-center py-12">
@@ -258,8 +260,8 @@ export default function WardrobePage() {
           </div>
         ) : (
           <div className="space-y-12">
-            <WardrobeSection
-              title="Tops"
+            <LazyWardrobeSection
+              title={t('wardrobe.tops')}
               emoji="👕"
               category="tops"
               items={items.tops}
@@ -267,8 +269,8 @@ export default function WardrobePage() {
               onAddItem={handleAddItem}
               onDeleteItem={handleDeleteItem}
             />
-            <WardrobeSection
-              title="Pants"
+            <LazyWardrobeSection
+              title={t('wardrobe.pants')}
               emoji="👖"
               category="pants"
               items={items.pants}
@@ -276,8 +278,8 @@ export default function WardrobePage() {
               onAddItem={handleAddItem}
               onDeleteItem={handleDeleteItem}
             />
-            <WardrobeSection
-              title="Shoes"
+            <LazyWardrobeSection
+              title={t('wardrobe.shoes')}
               emoji="👟"
               category="shoes"
               items={items.shoes}

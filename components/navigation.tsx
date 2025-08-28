@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils"
 import { UserAvatar } from "./user-avatar"
 import { supabase } from "@/lib/supabase"
 import { LanguageSwitcher } from "./language-switcher"
+import { CurrencySwitcher } from "./currency-switcher"
 import { useLanguage } from "@/lib/lang-context"
 
 const navItems = [
@@ -34,7 +35,10 @@ export function Navigation({ onProtectedLinkClick }: NavigationProps) {
       try {
         const { data: { session } } = await supabase.auth.getSession()
         console.log('Navigation: Auth session:', !!session, session?.user?.email)
-        setIsLoggedIn(!!session)
+        
+        // 检查是否有认证cookie，确保用户真正登录了
+        const hasAuthCookie = document.cookie.includes('dw_auth')
+        setIsLoggedIn(!!session && hasAuthCookie)
       } catch (error) {
         console.error('Error checking auth status:', error)
         // 如果Supabase检查失败，回退到cookie检查
@@ -50,7 +54,14 @@ export function Navigation({ onProtectedLinkClick }: NavigationProps) {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
         console.log('Navigation: Auth state changed:', event, !!session, session?.user?.email)
-        setIsLoggedIn(!!session)
+        
+        // 只有在登录事件时才设置登录状态
+        if (event === 'SIGNED_IN' && session) {
+          const hasAuthCookie = document.cookie.includes('dw_auth')
+          setIsLoggedIn(hasAuthCookie)
+        } else if (event === 'SIGNED_OUT') {
+          setIsLoggedIn(false)
+        }
       }
     )
 
@@ -108,6 +119,8 @@ export function Navigation({ onProtectedLinkClick }: NavigationProps) {
           <div className="flex items-center space-x-4">
             {/* Language Switcher */}
             <LanguageSwitcher />
+            {/* Currency Switcher */}
+            <CurrencySwitcher />
             
             {/* User Avatar */}
             {isLoggedIn && <UserAvatar />}

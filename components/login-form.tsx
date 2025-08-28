@@ -2,7 +2,7 @@
 
 import type React from "react"
 
-import { useState, useEffect, useMemo, useRef } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card } from "@/components/ui/card"
@@ -10,62 +10,26 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { supabase } from "@/lib/supabase"
 import { useLanguage } from "@/lib/lang-context"
 import { useRouter } from 'next/navigation'
-import { useRemoteLoginWatcher } from '@/hooks/use-remote-login-watcher'
+// Removed remote login watcher (Magic Link flow)
 
 export function LoginForm() {
   const [email, setEmail] = useState("")
-  const [isEmailLoading, setIsEmailLoading] = useState(false)
+  const [password, setPassword] = useState("")
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isGoogleLoading, setIsGoogleLoading] = useState(false)
   const [errorMessage, setErrorMessage] = useState("")
+  const [infoMessage, setInfoMessage] = useState("")
+  const [isResending, setIsResending] = useState(false)
   const [isClient, setIsClient] = useState(false)
-  const [countdown, setCountdown] = useState(0)
+  const [authMode, setAuthMode] = useState<"login" | "signup">("login")
   const { t } = useLanguage()
   const router = useRouter()
 
-  // 方案B兜底：挂载跨设备轮询/焦点刷新
-  useRemoteLoginWatcher({ redirectTo: '/wardrobe' })
-
-  // 方案A：一次性 token，用于跨设备 Realtime 通知
-  const loginToken = useMemo(() => {
-    try {
-      // 浏览器原生 uuid
-      // @ts-ignore
-      if (typeof crypto !== 'undefined' && crypto?.randomUUID) return crypto.randomUUID()
-    } catch {}
-    // 退化：简易随机串
-    return Math.random().toString(36).slice(2) + Date.now().toString(36)
-  }, [])
-  const channelRef = useRef<ReturnType<typeof supabase.channel> | null>(null)
-
   useEffect(() => {
     setIsClient(true)
+  }, [])
 
-    // 订阅一次性频道，等待手机端回调广播
-    const channel = supabase
-      .channel(`login:${loginToken}`, { config: { broadcast: { ack: true } } })
-      .on('broadcast', { event: 'logged_in' }, async () => {
-        // 收到广播，刷新本地 session 并跳转
-        await supabase.auth.getSession()
-        const { data: { session } } = await supabase.auth.getSession()
-        if (session) router.replace('/wardrobe')
-      })
-      .subscribe()
-
-    channelRef.current = channel
-    return () => { if (channel) supabase.removeChannel(channel) }
-  }, [loginToken, router])
-
-  // 倒计时效果
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => {
-        setCountdown(countdown - 1)
-      }, 1000)
-      return () => clearTimeout(timer)
-    }
-  }, [countdown])
-
-  // 检查URL参数中的错误信息
+  // 检查URL参数中的错误信息（保留）
   useEffect(() => {
     if (!isClient) return
     const urlParams = new URLSearchParams(window.location.search)
@@ -75,36 +39,60 @@ export function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setIsEmailLoading(true)
+    setIsSubmitting(true)
     setErrorMessage("")
+    setInfoMessage("")
     try {
-      const base = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
-      const redirectUrl = new URL(`${base}/auth/callback`)
-      redirectUrl.searchParams.set('loginToken', loginToken)
-      // 确认模式：手机端仅确认，不保持登录
-      redirectUrl.searchParams.set('confirmOnly', '1')
-
-      const { error } = await supabase.auth.signInWithOtp({
-        email,
-        options: { emailRedirectTo: redirectUrl.toString() },
-      })
-
-      if (error) {
-        if (error.message.includes('55 seconds') || error.message.includes('rate limit')) {
-          setErrorMessage('Too many requests. Please wait about 1 minute before trying again.')
-          setCountdown(60)
-        } else if (error.message.includes('Invalid email')) {
-          setErrorMessage('Please enter a valid email address.')
+      if (authMode === 'signup') {
+        const { data, error } = await supabase.auth.signUp({ email, password })
+        if (error) {
+          if (error.message.toLowerCase().includes('user already registered') || error.message.toLowerCase().includes('already')) {
+            setErrorMessage('Email already in use. Try logging in.')
+          } else if (error.message.toLowerCase().includes('password')) {
+            setErrorMessage('Password does not meet requirements.')
+          } else {
+            setErrorMessage('Failed to sign up. Please try again.')
+          }
         } else {
-          setErrorMessage('Failed to send login email. Please try again.')
+          // 若项目未开启 email 确认，这里会直接有 session；否则需要验证邮箱
+          const session = data.session
+          if (session) {
+            // 设置认证cookie
+            document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
+            // 等待一下确保状态更新
+            setTimeout(() => {
+              router.replace('/wardrobe')
+            }, 100)
+          } else {
+            setInfoMessage('Registration successful. Check your email to verify your account.')
+          }
         }
       } else {
-        // 可选：提示已发送邮件
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password })
+        if (error) {
+          const msg = error.message.toLowerCase()
+          if (msg.includes('email not confirmed') || msg.includes('email not confirmed')) {
+            setErrorMessage('Email not confirmed. Please verify your inbox, or resend the verification email below.')
+          } else if (msg.includes('invalid login credentials')) {
+            setErrorMessage('Invalid email or password.')
+          } else {
+            setErrorMessage('Failed to log in. Please try again.')
+          }
+        } else {
+          if (data.session) {
+            // 设置认证cookie
+            document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
+            // 等待一下确保状态更新
+            setTimeout(() => {
+              router.replace('/wardrobe')
+            }, 100)
+          }
+        }
       }
     } catch (error) {
       setErrorMessage('An unexpected error occurred. Please try again.')
     } finally {
-      setIsEmailLoading(false)
+      setIsSubmitting(false)
     }
   }
 
@@ -112,11 +100,9 @@ export function LoginForm() {
     setIsGoogleLoading(true)
     setErrorMessage("")
     try {
-      const base = process.env.NEXT_PUBLIC_APP_URL || window.location.origin
-      const redirectTo = `${base}/auth/callback?loginToken=${loginToken}`
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo },
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
       })
       if (error) setErrorMessage('Failed to start Google login. Please try again.')
     } catch (error) {
@@ -165,21 +151,64 @@ export function LoginForm() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full h-12 sm:h-14 text-sm sm:text-base bg-white/90 backdrop-blur-sm border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-orange-400 transition-all duration-300"
               required
-              disabled={isEmailLoading || countdown > 0}
+              disabled={isSubmitting}
+            />
+
+            <Input
+              type="password"
+              placeholder={t('login.password') || 'Password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full h-12 sm:h-14 text-sm sm:text-base bg-white/90 backdrop-blur-sm border border-gray-200 rounded-2xl text-gray-900 placeholder:text-gray-500 focus:bg-white focus:border-orange-400 transition-all duration-300"
+              required
+              disabled={isSubmitting}
             />
 
             <Button
               type="submit"
               className="w-full h-12 sm:h-14 bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-semibold rounded-2xl transition-all duration-300 transform hover:scale-[1.02] shadow-lg disabled:opacity-50 disabled:cursor-not-allowed min-w-0"
-              disabled={isEmailLoading || countdown > 0}
+              disabled={isSubmitting}
             >
               <span className="truncate">
-                {isEmailLoading ? t('login.checking') : 
-                 countdown > 0 ? `Wait ${countdown}s before trying again` : 
-                 t('login.continue')}
+                {isSubmitting ? (authMode === 'signup' ? (t('login.processing') || 'Creating account...') : (t('login.checking') || 'Signing in...')) : (authMode === 'signup' ? (t('login.signup') || 'Sign up') : (t('login.continue') || 'Sign in'))}
               </span>
             </Button>
           </form>
+
+          {infoMessage && (
+            <Alert className="mb-4 bg-blue-50 border-blue-200">
+              <AlertDescription className="text-blue-800 text-sm">
+                {infoMessage}
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {errorMessage.toLowerCase().includes('email not confirmed') && (
+            <div className="mb-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={async () => {
+                  try {
+                    setIsResending(true)
+                    setInfoMessage("")
+                    const { error } = await supabase.auth.resend({ type: 'signup', email })
+                    if (error) {
+                      setErrorMessage('Failed to resend verification email. Please try again later.')
+                    } else {
+                      setInfoMessage('Verification email sent. Please check your inbox.')
+                    }
+                  } finally {
+                    setIsResending(false)
+                  }
+                }}
+                className="w-full"
+                disabled={isResending}
+              >
+                {isResending ? (t('login.processing') || 'Resending...') : 'Resend verification email'}
+              </Button>
+            </div>
+          )}
 
           <div className="relative mb-6">
             <div className="absolute inset-0 flex items-center">
@@ -188,6 +217,16 @@ export function LoginForm() {
             <div className="relative flex justify-center text-xs uppercase">
               <span className="bg-transparent px-2 text-black font-medium">{t('login.or')}</span>
             </div>
+          </div>
+
+          <div className="flex items-center justify-between mb-4">
+            <button
+              type="button"
+              onClick={() => setAuthMode(authMode === 'login' ? 'signup' : 'login')}
+              className="text-sm text-gray-700 hover:text-gray-900 underline"
+            >
+              {authMode === 'login' ? (t('login.toSignup') || 'No account? Create one') : (t('login.toLogin') || 'Have an account? Sign in')}
+            </button>
           </div>
 
           <Button

@@ -41,8 +41,12 @@ export default function HomePage() {
         
         if (session && session.user) {
           console.log('User is authenticated:', session.user.email)
-          // 设置认证cookie
-          document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
+          // 检查是否已经有认证cookie
+          const hasAuthCookie = document.cookie.includes('dw_auth')
+          if (!hasAuthCookie) {
+            // 设置认证cookie
+            document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
+          }
           router.push('/wardrobe')
           return
         }

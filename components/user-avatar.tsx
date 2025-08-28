@@ -34,9 +34,17 @@ export function UserAvatar() {
       try {
         const { data: { user } } = await supabase.auth.getUser()
         console.log('UserAvatar: Got user:', user?.email, user?.user_metadata)
-        setUser(user)
+        
+        // 检查是否有认证cookie，确保用户真正登录了
+        const hasAuthCookie = document.cookie.includes('dw_auth')
+        if (user && hasAuthCookie) {
+          setUser(user)
+        } else {
+          setUser(null)
+        }
       } catch (error) {
         console.error('Error getting user:', error)
+        setUser(null)
       } finally {
         setIsLoading(false)
       }
@@ -48,7 +56,18 @@ export function UserAvatar() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         console.log('UserAvatar: Auth state changed:', event, session?.user?.email)
-        setUser(session?.user ?? null)
+        
+        // 只有在登录事件时才显示头像
+        if (event === 'SIGNED_IN' && session?.user) {
+          // 检查是否有认证cookie
+          const hasAuthCookie = document.cookie.includes('dw_auth')
+          if (hasAuthCookie) {
+            setUser(session.user)
+          }
+        } else if (event === 'SIGNED_OUT') {
+          setUser(null)
+        }
+        
         setIsLoading(false)
       }
     )

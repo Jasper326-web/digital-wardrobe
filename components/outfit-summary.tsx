@@ -4,6 +4,7 @@ import { useEffect, useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { useLanguage } from "@/lib/lang-context"
 
 interface ClothingItem {
   id: string
@@ -25,7 +26,24 @@ interface OutfitSummaryProps {
 }
 
 export function OutfitSummary({ selectedItems, onConfirmOutfit }: OutfitSummaryProps) {
+  const { t, formatCurrency } = useLanguage()
   const [mounted, setMounted] = useState(false)
+  
+  const commonTags = [
+    "casual",
+    "formal",
+    "work",
+    "summer",
+    "winter",
+    "sport",
+    "date",
+    "workout",
+    "versatile",
+    "cozy",
+    "smart-casual",
+    "comfort",
+    "exercise",
+  ]
 
   useEffect(() => {
     setMounted(true)
@@ -65,30 +83,30 @@ export function OutfitSummary({ selectedItems, onConfirmOutfit }: OutfitSummaryP
       <div className="p-6">
         <div className="space-y-5">
           <div className="flex items-center justify-between">
-            <h3 className="font-semibold">Outfit Summary</h3>
-            <Badge variant={isComplete ? "default" : "secondary"}>{items.length} item{items.length !== 1 ? 's' : ''} selected</Badge>
+            <h3 className="font-semibold">{t('outfit.outfitSummary')}</h3>
+            <Badge variant={isComplete ? "default" : "secondary"}>{items.length} {t('common.selected') || 'items selected'}</Badge>
           </div>
 
           {items.length > 0 && (
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
               <div>
-                <span className="text-muted-foreground">Today's Total Cost:</span>
-                <div className="font-semibold text-primary">${todayTotalCost}</div>
+                <span className="text-muted-foreground">{t('outfit.todaysTotalCost')}:</span>
+                <div className="font-semibold text-primary">{formatCurrency(todayTotalCost)}</div>
               </div>
               <div>
-                <span className="text-muted-foreground">Total Original Price:</span>
-                <div className="font-semibold">${totalOriginalPrice.toFixed(0)}</div>
+                <span className="text-muted-foreground">{t('outfit.totalOriginalPrice')}:</span>
+                <div className="font-semibold">{formatCurrency(totalOriginalPrice)}</div>
               </div>
               <div>
-                <span className="text-muted-foreground">Total Wears:</span>
+                <span className="text-muted-foreground">{t('outfit.totalWears')}:</span>
                 <div className="font-semibold">{totalWears}</div>
               </div>
               <div>
-                <span className="text-muted-foreground">Style Tags:</span>
+                <span className="text-muted-foreground">{t('outfit.styleTags')}:</span>
                 <div className="flex flex-wrap gap-1 mt-1">
                   {uniqueTags.slice(0, 3).map((tag) => (
                     <Badge key={tag} variant="outline" className="text-xs">
-                      {tag}
+                      {commonTags.includes(tag) ? t(`wardrobe.tag.${tag}`) : tag}
                     </Badge>
                   ))}
                   {uniqueTags.length > 3 && (
@@ -103,7 +121,7 @@ export function OutfitSummary({ selectedItems, onConfirmOutfit }: OutfitSummaryP
 
           <div className="flex gap-2">
             <Button onClick={onConfirmOutfit} disabled={!isComplete} className="flex-1" size="lg">
-              {isComplete ? "Confirm & Update Usage Counts" : "Select Items First"}
+              {isComplete ? (t('outfit.confirmUpdate') || 'Confirm & Update Usage Counts') : t('outfit.selectItemsFirst')}
             </Button>
           </div>
         </div>
