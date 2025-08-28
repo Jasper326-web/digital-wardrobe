@@ -1,6 +1,9 @@
 name = "digital-wardrobe"
 compatibility_date = "2025-08-26"
 
+# 为Cloudflare Pages配置
+pages_build_output_dir = ".vercel/output/static"
+
 [compatibility_flags]
 nodejs_compat = true
 
@@ -9,3 +12,7 @@ compatibility_flags = ["nodejs_compat"]
 
 [env.preview]
 compatibility_flags = ["nodejs_compat"]
+
+# 构建配置
+[build]
+command = "pnpm build:pages"
