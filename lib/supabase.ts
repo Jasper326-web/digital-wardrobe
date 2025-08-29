@@ -5,12 +5,16 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
 
 // 检查环境变量是否存在
 if (!supabaseUrl || !supabaseAnonKey) {
-  console.warn('Supabase environment variables are not set. Some features may not work.')
+  console.error('Supabase environment variables are not set. Authentication will not work.')
+  throw new Error('Supabase environment variables are not configured')
 }
 
+// 清理URL，移除可能的尾随字符
+const cleanSupabaseUrl = supabaseUrl.replace(/[%#]$/, '')
+
 export const supabase = createClient(
-  supabaseUrl || 'https://placeholder.supabase.co',
-  supabaseAnonKey || 'placeholder-key',
+  cleanSupabaseUrl,
+  supabaseAnonKey,
   {
     auth: {
       persistSession: true,
