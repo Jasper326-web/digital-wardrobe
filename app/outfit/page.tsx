@@ -76,7 +76,7 @@ export default function OutfitPage() {
 
   useEffect(() => {
     loadOutfitData()
-  }, [])
+  }, []) // 空依赖数组，只在组件挂载时执行一次
 
   const handleItemSelect = (item: ClothingItem, category: string) => {
     setSelectedItems((prev) => {

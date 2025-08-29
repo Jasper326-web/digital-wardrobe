@@ -85,7 +85,7 @@ export default function HomePage() {
     // 添加延迟，避免在OAuth回调过程中立即检查
     const timer = setTimeout(checkAuthStatus, 500)
     return () => clearTimeout(timer)
-  }, [router, isClient])
+  }, [isClient]) // 移除router依赖，避免无限循环
 
   const handleProtectedLinkClick = () => {
     if (loginFormRef.current) {

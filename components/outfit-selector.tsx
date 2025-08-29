@@ -70,11 +70,6 @@ export function OutfitSelector({ items, selectedItems, onItemSelect }: OutfitSel
     const categoryKey = item.category === "tops" ? "top" : item.category
     const isItemSelected = selectedItems[categoryKey as keyof typeof selectedItems]?.id === item.id
     
-    // 调试信息
-    if (item.category === "tops") {
-      console.log(`Tops item "${item.name}": categoryKey=${categoryKey}, selectedItem=${selectedItems[categoryKey as keyof typeof selectedItems]?.name}, isSelected=${isItemSelected}`)
-    }
-    
     return isItemSelected
   }
 
