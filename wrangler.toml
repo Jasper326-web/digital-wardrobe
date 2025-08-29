@@ -13,7 +13,3 @@ vars = { NODE_ENV = "production" }
 [env.preview]
 compatibility_flags = ["nodejs_compat"]
 vars = { NODE_ENV = "production" }
-
-# 构建配置
-[build]
-command = "pnpm build:cloudflare"
