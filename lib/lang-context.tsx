@@ -199,7 +199,7 @@ const translations = {
     'home.uploadWardrobe': 'Upload your wardrobe',
     'home.buildCloset': '→ Build your personal closet',
     'home.trackCost': 'Track cost-per-wear so you know what\'s worth keeping',
-    'home.freeAnalysis': 'Generate your personalized digital wardrobe insights in under a minute',
+    'home.freeAnalysis': 'Generate your personalized digital wardrobe insights right now',
     'home.loading': 'Checking authentication...',
     
     // Navigation
