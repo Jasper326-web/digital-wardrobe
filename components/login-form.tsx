@@ -63,16 +63,9 @@ export function LoginForm() {
             cache.clear()
             // 设置认证cookie
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
-            // 保险：等待会话写入并刷新路由，再跳转；最后加硬跳转兜底
-            setTimeout(async () => {
-              try {
-                await supabase.auth.getSession()
-              } catch {}
-              trackEvent('signup_success', { method: 'password' })
-              try { router.refresh() } catch {}
-              try { router.replace('/wardrobe') } catch {}
-              setTimeout(() => { if (location.pathname !== '/wardrobe') location.assign('/wardrobe') }, 400)
-            }, 120)
+            // 立即跳转，减少延迟
+            trackEvent('signup_success', { method: 'password' })
+            router.replace('/wardrobe')
           } else {
             setInfoMessage('Registration successful. Check your email to verify your account.')
           }
@@ -94,16 +87,11 @@ export function LoginForm() {
             cache.clear()
             // 设置认证cookie
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
-            // 保险：等待会话写入并刷新路由，再跳转；最后加硬跳转兜底
-            setTimeout(async () => {
-              try {
-                await supabase.auth.getSession()
-              } catch {}
-              trackEvent('login_success', { method: 'password' })
-              try { router.refresh() } catch {}
-              try { router.replace('/wardrobe') } catch {}
-              setTimeout(() => { if (location.pathname !== '/wardrobe') location.assign('/wardrobe') }, 400)
-            }, 120)
+            // 快速跳转，只保留最小延迟
+            trackEvent('login_success', { method: 'password' })
+            setTimeout(() => {
+              router.replace('/wardrobe')
+            }, 50)
           }
         }
       }
