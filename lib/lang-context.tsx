@@ -13,7 +13,7 @@ const translations = {
     'home.uploadWardrobe': '上传你的衣柜',
     'home.buildCloset': '→ 建立你的个人衣橱',
     'home.trackCost': '追踪每次穿着成本，了解什么值得保留',
-    'home.freeAnalysis': '在一分钟内获得你的首次免费分析',
+    'home.freeAnalysis': '在一分钟内生成属于你的数字化衣橱洞察',
     'home.loading': '检查认证状态...',
     
     // 导航
@@ -199,7 +199,7 @@ const translations = {
     'home.uploadWardrobe': 'Upload your wardrobe',
     'home.buildCloset': '→ Build your personal closet',
     'home.trackCost': 'Track cost-per-wear so you know what\'s worth keeping',
-    'home.freeAnalysis': 'Get your first free analysis in less than a minute',
+    'home.freeAnalysis': 'Generate your personalized digital wardrobe insights in under a minute',
     'home.loading': 'Checking authentication...',
     
     // Navigation
