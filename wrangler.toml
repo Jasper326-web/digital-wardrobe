@@ -4,19 +4,16 @@ compatibility_date = "2025-08-26"
 # 为Cloudflare Pages配置
 pages_build_output_dir = ".vercel/output/static"
 
-[compatibility_flags]
-nodejs_compat = true
+compatibility_flags = ["nodejs_compat"]
 
 [env.production]
 compatibility_flags = ["nodejs_compat"]
+vars = { NODE_ENV = "production" }
 
 [env.preview]
 compatibility_flags = ["nodejs_compat"]
+vars = { NODE_ENV = "production" }
 
 # 构建配置
 [build]
 command = "pnpm build:cloudflare"
-
-# 环境变量
-[vars]
-NODE_ENV = "production"
