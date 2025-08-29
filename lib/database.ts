@@ -1,5 +1,5 @@
 import { supabase } from './supabase'
-import { cache, CACHE_KEYS } from './cache'
+import { cache, CACHE_KEYS, clearUserCache } from './cache'
 
 export interface ClothingItem {
   id: string
@@ -16,10 +16,21 @@ export interface ClothingItem {
 
 // 获取用户的衣物项目
 export const getClothingItems = async (): Promise<ClothingItem[]> => {
-  // 检查缓存
-  const cachedData = cache.get(CACHE_KEYS.CLOTHING_ITEMS)
+  // 首先检查认证状态
+  const { data: { user }, error: authError } = await supabase.auth.getUser()
+  
+  if (authError || !user) {
+    console.error('Auth error or no user:', authError)
+    // 清除所有缓存
+    cache.clear()
+    throw new Error('AUTH_EXPIRED')
+  }
+
+  // 使用用户ID作为缓存键的一部分，确保不同用户的数据不会混淆
+  const userCacheKey = `${CACHE_KEYS.CLOTHING_ITEMS}_${user.id}`
+  const cachedData = cache.get(userCacheKey)
   if (cachedData) {
-    console.log('Using cached clothing items')
+    console.log('Using cached clothing items for user:', user.id)
     return cachedData
   }
 
@@ -64,8 +75,8 @@ export const getClothingItems = async (): Promise<ClothingItem[]> => {
 
       const result = data || []
       
-      // 缓存结果
-      cache.set(CACHE_KEYS.CLOTHING_ITEMS, result, 2 * 60 * 1000) // 2分钟缓存
+      // 缓存结果，使用用户特定的缓存键
+      cache.set(userCacheKey, result, 2 * 60 * 1000) // 2分钟缓存
       
       return result
     } catch (error) {
@@ -170,8 +181,8 @@ export const updateClothingItem = async (id: string, updates: Partial<ClothingIt
     throw error
   }
 
-  // 清除缓存，强制重新获取数据
-  cache.delete(CACHE_KEYS.CLOTHING_ITEMS)
+  // 清除当前用户的缓存
+  await clearUserCache()
 
   return data
 }
@@ -210,8 +221,8 @@ export const deleteClothingItem = async (id: string): Promise<void> => {
     throw error
   }
 
-  // 清除缓存，强制重新获取数据
-  cache.delete(CACHE_KEYS.CLOTHING_ITEMS)
+  // 清除当前用户的缓存
+  await clearUserCache()
 }
 
 // 增加使用次数

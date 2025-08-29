@@ -10,6 +10,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { supabase } from "@/lib/supabase"
 import { useLanguage } from "@/lib/lang-context"
 import { useRouter } from 'next/navigation'
+import { cache } from "@/lib/cache"
 // Removed remote login watcher (Magic Link flow)
 
 export function LoginForm() {
@@ -57,6 +58,8 @@ export function LoginForm() {
           // 若项目未开启 email 确认，这里会直接有 session；否则需要验证邮箱
           const session = data.session
           if (session) {
+            // 清除所有缓存，确保新用户看到正确的数据
+            cache.clear()
             // 设置认证cookie
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
             // 等待一下确保状态更新
@@ -80,6 +83,8 @@ export function LoginForm() {
           }
         } else {
           if (data.session) {
+            // 清除所有缓存，确保新用户看到正确的数据
+            cache.clear()
             // 设置认证cookie
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
             // 等待一下确保状态更新

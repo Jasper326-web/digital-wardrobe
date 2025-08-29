@@ -1,3 +1,5 @@
+import { supabase } from './supabase'
+
 // 简单的内存缓存系统
 class Cache {
   private cache = new Map<string, { data: any; timestamp: number; ttl: number }>()
@@ -39,3 +41,17 @@ export const CACHE_KEYS = {
   USER_PROFILE: 'user_profile',
   ANALYTICS_DATA: 'analytics_data'
 } as const
+
+// 清除当前用户的缓存
+export const clearUserCache = async () => {
+  try {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (user) {
+      const userCacheKey = `${CACHE_KEYS.CLOTHING_ITEMS}_${user.id}`
+      cache.delete(userCacheKey)
+      console.log('Cleared cache for user:', user.id)
+    }
+  } catch (error) {
+    console.error('Error clearing user cache:', error)
+  }
+}
