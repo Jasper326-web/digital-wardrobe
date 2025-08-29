@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast"
 import { getClothingItems, updateClothingItem } from "@/lib/database"
 import { checkSupabaseConnection } from "@/lib/supabase"
 import { useLanguage } from "@/lib/lang-context"
+import { trackEvent } from "@/lib/analytics"
 
 interface ClothingItem {
   id: string
@@ -79,6 +80,7 @@ export default function OutfitPage() {
   }, []) // 空依赖数组，只在组件挂载时执行一次
 
   const handleItemSelect = (item: ClothingItem, category: string) => {
+    trackEvent('outfit_item_select', { id: item.id, category })
     setSelectedItems((prev) => {
       const categoryKey = category === "tops" ? "top" : category === "pants" ? "pants" : "shoes"
       const currentItem = prev[categoryKey]
@@ -104,6 +106,7 @@ export default function OutfitPage() {
     if (selectedItemsArray.length === 0) return
     
     try {
+      trackEvent('outfit_confirm_click', { count: selectedItemsArray.length })
       // 立即更新本地状态以提供即时反馈
       const updatedItems = items.map(item => {
         const selectedItem = selectedItemsArray.find(selected => selected.id === item.id)
@@ -127,6 +130,7 @@ export default function OutfitPage() {
 
       // 显示成功弹窗
       setShowSuccessModal(true)
+      trackEvent('outfit_confirm_success', { count: selectedItemsArray.length })
       
       // 后台异步更新数据库
       Promise.all(

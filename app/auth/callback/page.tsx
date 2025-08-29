@@ -3,6 +3,7 @@
 import { useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
+import { trackEvent } from '@/lib/analytics'
 
 function AuthCallbackContent() {
   const router = useRouter()
@@ -27,6 +28,9 @@ function AuthCallbackContent() {
           // 设置认证cookie
           document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
           
+          // 记录OAuth成功事件
+          trackEvent('login_success', { method: 'oauth', provider: 'google' })
+
           // 检查是否有重定向参数
           const redirectTo = searchParams.get('redirect') || '/wardrobe'
           console.log('Redirecting to:', redirectTo)

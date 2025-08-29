@@ -11,6 +11,7 @@ import { supabase } from "@/lib/supabase"
 import { useLanguage } from "@/lib/lang-context"
 import { useRouter } from 'next/navigation'
 import { cache } from "@/lib/cache"
+import { trackEvent } from "@/lib/analytics"
 // Removed remote login watcher (Magic Link flow)
 
 export function LoginForm() {
@@ -64,6 +65,7 @@ export function LoginForm() {
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
             // 等待一下确保状态更新
             setTimeout(() => {
+              trackEvent('signup_success', { method: 'password' })
               router.replace('/wardrobe')
             }, 100)
           } else {
@@ -89,6 +91,7 @@ export function LoginForm() {
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
             // 等待一下确保状态更新
             setTimeout(() => {
+              trackEvent('login_success', { method: 'password' })
               router.replace('/wardrobe')
             }, 100)
           }

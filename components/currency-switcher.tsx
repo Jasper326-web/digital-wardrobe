@@ -2,11 +2,16 @@
 
 import { Button } from "@/components/ui/button"
 import { useLanguage } from "@/lib/lang-context"
+import { trackEvent } from "@/lib/analytics"
 
 export function CurrencySwitcher() {
   const { currency, setCurrency, currencySymbol, t } = useLanguage()
 
-  const toggle = () => setCurrency(currency === 'cny' ? 'usd' : 'cny')
+  const toggle = () => {
+    const next = currency === 'cny' ? 'usd' : 'cny'
+    trackEvent('currency_toggle', { to: next })
+    setCurrency(next)
+  }
 
   return (
     <Button
