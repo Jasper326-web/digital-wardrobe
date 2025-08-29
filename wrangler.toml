@@ -8,8 +8,8 @@ compatibility_flags = ["nodejs_compat"]
 
 [env.production]
 compatibility_flags = ["nodejs_compat"]
-vars = { NODE_ENV = "production" }
+vars = { NODE_ENV = "production", NEXT_PUBLIC_SUPABASE_URL = "https://lntbgczhhjimesgpuwgc.supabase.co" }
 
 [env.preview]
 compatibility_flags = ["nodejs_compat"]
-vars = { NODE_ENV = "production" }
+vars = { NODE_ENV = "production", NEXT_PUBLIC_SUPABASE_URL = "https://lntbgczhhjimesgpuwgc.supabase.co" }
