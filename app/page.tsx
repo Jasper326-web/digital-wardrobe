@@ -26,7 +26,7 @@ export default function HomePage() {
 
     const checkAuthStatus = async () => {
       try {
-
+        console.log('Checking authentication status...')
         
         // 检查Supabase会话状态
         const { data: { session }, error } = await supabase.auth.getSession()
@@ -47,7 +47,12 @@ export default function HomePage() {
             // 设置认证cookie
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
           }
-          router.push('/wardrobe')
+          
+          // 检查URL参数中的重定向目标
+          const urlParams = new URLSearchParams(window.location.search)
+          const redirectTo = urlParams.get('redirect') || '/wardrobe'
+          console.log('Redirecting to:', redirectTo)
+          router.push(redirectTo)
           return
         }
         
@@ -69,6 +74,7 @@ export default function HomePage() {
           }
         }
         
+        console.log('No valid session found, showing login form')
         setIsCheckingAuth(false)
       } catch (error) {
         console.error('Auth check failed:', error)
@@ -76,7 +82,9 @@ export default function HomePage() {
       }
     }
     
-    checkAuthStatus()
+    // 添加延迟，避免在OAuth回调过程中立即检查
+    const timer = setTimeout(checkAuthStatus, 500)
+    return () => clearTimeout(timer)
   }, [router, isClient])
 
   const handleProtectedLinkClick = () => {

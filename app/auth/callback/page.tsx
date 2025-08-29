@@ -1,17 +1,20 @@
 "use client"
 
 import { useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { supabase } from '@/lib/supabase'
 
 export default function AuthCallbackPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     const handleAuthCallback = async () => {
       try {
-        // 处理认证回调
-        const { data: { session }, error } = await supabase.auth.getSession()
+        console.log('Processing OAuth callback...')
+        
+        // 处理OAuth回调
+        const { data, error } = await supabase.auth.getSession()
         
         if (error) {
           console.error('Auth callback error:', error)
@@ -19,12 +22,15 @@ export default function AuthCallbackPage() {
           return
         }
 
-        if (session && session.user) {
-          console.log('OAuth login successful:', session.user.email)
+        if (data.session && data.session.user) {
+          console.log('OAuth login successful:', data.session.user.email)
           // 设置认证cookie
           document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
-          // 重定向到衣橱页面
-          router.push('/wardrobe')
+          
+          // 检查是否有重定向参数
+          const redirectTo = searchParams.get('redirect') || '/wardrobe'
+          console.log('Redirecting to:', redirectTo)
+          router.push(redirectTo)
         } else {
           console.log('No session found in callback')
           router.push('/?error=no_session')
@@ -35,8 +41,10 @@ export default function AuthCallbackPage() {
       }
     }
 
-    handleAuthCallback()
-  }, [router])
+    // 延迟处理，确保URL参数已加载
+    const timer = setTimeout(handleAuthCallback, 100)
+    return () => clearTimeout(timer)
+  }, [router, searchParams])
 
   return (
     <div className="min-h-screen flex items-center justify-center">
