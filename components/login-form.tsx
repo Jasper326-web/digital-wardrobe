@@ -63,11 +63,16 @@ export function LoginForm() {
             cache.clear()
             // 设置认证cookie
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
-            // 等待一下确保状态更新
-            setTimeout(() => {
+            // 保险：等待会话写入并刷新路由，再跳转；最后加硬跳转兜底
+            setTimeout(async () => {
+              try {
+                await supabase.auth.getSession()
+              } catch {}
               trackEvent('signup_success', { method: 'password' })
-              router.replace('/wardrobe')
-            }, 100)
+              try { router.refresh() } catch {}
+              try { router.replace('/wardrobe') } catch {}
+              setTimeout(() => { if (location.pathname !== '/wardrobe') location.assign('/wardrobe') }, 400)
+            }, 120)
           } else {
             setInfoMessage('Registration successful. Check your email to verify your account.')
           }
@@ -89,11 +94,16 @@ export function LoginForm() {
             cache.clear()
             // 设置认证cookie
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
-            // 等待一下确保状态更新
-            setTimeout(() => {
+            // 保险：等待会话写入并刷新路由，再跳转；最后加硬跳转兜底
+            setTimeout(async () => {
+              try {
+                await supabase.auth.getSession()
+              } catch {}
               trackEvent('login_success', { method: 'password' })
-              router.replace('/wardrobe')
-            }, 100)
+              try { router.refresh() } catch {}
+              try { router.replace('/wardrobe') } catch {}
+              setTimeout(() => { if (location.pathname !== '/wardrobe') location.assign('/wardrobe') }, 400)
+            }, 120)
           }
         }
       }
