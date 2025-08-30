@@ -25,9 +25,12 @@ export default function HomePage() {
   useEffect(() => {
     if (!isClient) return
 
+    let retryCount = 0
+    const maxRetries = 3
+
     const checkAuthStatus = async () => {
       try {
-        console.log('Checking authentication status...')
+        console.log(`Checking authentication status... (attempt ${retryCount + 1})`)
         
         // 检查Supabase会话状态
         const { data: { session }, error } = await supabase.auth.getSession()
@@ -75,10 +78,24 @@ export default function HomePage() {
           }
         }
         
-        console.log('No valid session found, showing login form')
+        // 如果没有找到有效会话，尝试重试
+        retryCount++
+        if (retryCount < maxRetries) {
+          console.log(`No valid session found, retrying in 1 second... (${retryCount}/${maxRetries})`)
+          setTimeout(checkAuthStatus, 1000)
+          return
+        }
+        
+        console.log('No valid session found after retries, showing login form')
         setIsCheckingAuth(false)
       } catch (error) {
         console.error('Auth check failed:', error)
+        retryCount++
+        if (retryCount < maxRetries) {
+          console.log(`Auth check failed, retrying in 1 second... (${retryCount}/${maxRetries})`)
+          setTimeout(checkAuthStatus, 1000)
+          return
+        }
         setIsCheckingAuth(false)
       }
     }

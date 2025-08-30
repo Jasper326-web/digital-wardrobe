@@ -87,11 +87,9 @@ export function LoginForm() {
             cache.clear()
             // 设置认证cookie
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
-            // 快速跳转，只保留最小延迟
+            // 立即跳转，减少延迟
             trackEvent('login_success', { method: 'password' })
-            setTimeout(() => {
-              router.replace('/wardrobe')
-            }, 50)
+            router.replace('/wardrobe')
           }
         }
       }
