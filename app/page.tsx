@@ -25,6 +25,28 @@ export default function HomePage() {
   useEffect(() => {
     if (!isClient) return
 
+    // 检查是否是登出后的重定向
+    const urlParams = new URLSearchParams(window.location.search)
+    const logoutStatus = urlParams.get('logout')
+    
+    if (logoutStatus) {
+      // 如果是登出后的重定向，清除所有认证状态并停止检查
+      console.log('检测到登出状态:', logoutStatus)
+      document.cookie = "dw_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+      document.cookie = "sb-access-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+      document.cookie = "sb-refresh-token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
+      
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('supabase.auth.token')
+        localStorage.removeItem('supabase.auth.expires_at')
+        localStorage.removeItem('supabase.auth.refresh_token')
+        localStorage.removeItem('supabase.auth.access_token')
+      }
+      
+      setIsCheckingAuth(false)
+      return
+    }
+
     let retryCount = 0
     const maxRetries = 2 // 减少重试次数，快速失败
 

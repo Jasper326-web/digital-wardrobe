@@ -5,6 +5,11 @@ import type { NextRequest } from "next/server"
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
 
+  // 允许访问登出页面
+  if (pathname === "/logout") {
+    return NextResponse.next()
+  }
+
   const protectedPaths = ["/wardrobe", "/outfit", "/analytics"]
   const isProtected = protectedPaths.some((p) => pathname.startsWith(p))
 
