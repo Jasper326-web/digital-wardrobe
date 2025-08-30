@@ -125,17 +125,6 @@ export function Navigation({ onProtectedLinkClick }: NavigationProps) {
             {/* User Avatar */}
             {isLoggedIn && <UserAvatar />}
             
-            {/* Force Logout Link (for debugging) */}
-            {isLoggedIn && (
-              <Link
-                href="/logout"
-                className="px-3 py-2 rounded-md text-sm font-medium transition-all duration-200 text-red-600 hover:text-red-700 hover:bg-red-50/50"
-                title="强制登出（清除所有认证状态）"
-              >
-                强制登出
-              </Link>
-            )}
-            
             {/* Mobile menu */}
             <div className="md:hidden">
               <div className="flex items-center space-x-4">
