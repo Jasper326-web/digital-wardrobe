@@ -44,6 +44,9 @@ export function LoginForm() {
     setIsSubmitting(true)
     setErrorMessage("")
     setInfoMessage("")
+    
+    // 立即显示处理状态
+    setInfoMessage(authMode === 'signup' ? '正在创建账户...' : '正在登录...')
     try {
       if (authMode === 'signup') {
         const { data, error } = await supabase.auth.signUp({ email, password })
@@ -65,12 +68,10 @@ export function LoginForm() {
             cache.clear()
             // 设置认证cookie
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
-            // 延迟跳转，让用户看到成功提示
+            // 立即跳转，提供丝滑体验
             trackEvent('signup_success', { method: 'password' })
-            setTimeout(() => {
-              // 强制跳转，确保能成功
-              window.location.href = '/wardrobe'
-            }, 1500)
+            // 使用 router 跳转，更优雅
+            router.replace('/wardrobe')
           } else {
             // 需要邮箱验证
             setInfoMessage('✅ 注册成功！请检查邮箱并点击验证链接，然后返回登录。')
@@ -100,12 +101,10 @@ export function LoginForm() {
             cache.clear()
             // 设置认证cookie
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
-            // 延迟跳转，让用户看到成功提示
+            // 立即跳转，提供丝滑体验
             trackEvent('login_success', { method: 'password' })
-            setTimeout(() => {
-              // 强制跳转，确保能成功
-              window.location.href = '/wardrobe'
-            }, 1000)
+            // 使用 router 跳转，更优雅
+            router.replace('/wardrobe')
           }
         }
       }

@@ -26,84 +26,69 @@ export default function HomePage() {
     if (!isClient) return
 
     let retryCount = 0
-    const maxRetries = 5 // 增加重试次数
+    const maxRetries = 2 // 减少重试次数，快速失败
 
     const checkAuthStatus = async () => {
       try {
-        console.log(`Checking authentication status... (attempt ${retryCount + 1})`)
-        
-        // 检查Supabase会话状态
+        // 静默检查，不打印日志避免干扰
         const { data: { session }, error } = await supabase.auth.getSession()
         
         if (error) {
           console.error('Auth check error:', error)
-          // 清除可能过期的cookie
           document.cookie = "dw_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
           setIsCheckingAuth(false)
           return
         }
         
         if (session && session.user) {
-          console.log('User is authenticated:', session.user.email)
-          // 检查是否已经有认证cookie
+          // 用户已登录，立即跳转
           const hasAuthCookie = document.cookie.includes('dw_auth')
           if (!hasAuthCookie) {
-            // 设置认证cookie
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
           }
           
-          // 检查URL参数中的重定向目标
           const urlParams = new URLSearchParams(window.location.search)
           const redirectTo = urlParams.get('redirect') || '/wardrobe'
-          console.log('Redirecting to:', redirectTo)
           router.push(redirectTo)
           return
         }
         
-        // 检查dw_auth cookie作为备用
+        // 检查cookie作为备用
         const hasDwAuthCookie = document.cookie.includes('dw_auth')
         if (hasDwAuthCookie) {
-          console.log('Found dw_auth cookie, checking if session is still valid...')
-          
-          // 尝试刷新会话
-          const { data: { session: refreshedSession }, error: refreshError } = await supabase.auth.refreshSession()
+          const { data: { session: refreshedSession } } = await supabase.auth.refreshSession()
           
           if (refreshedSession && refreshedSession.user) {
-            console.log('Session refreshed successfully, redirecting to wardrobe')
             router.push('/wardrobe')
             return
           } else {
-            console.log('Session refresh failed, clearing cookie')
             document.cookie = "dw_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT"
           }
         }
         
-        // 如果没有找到有效会话，尝试重试
+        // 快速重试一次
         retryCount++
         if (retryCount < maxRetries) {
-          console.log(`No valid session found, retrying in 2 seconds... (${retryCount}/${maxRetries})`)
-          setTimeout(checkAuthStatus, 2000) // 增加重试间隔
+          setTimeout(checkAuthStatus, 500) // 快速重试
           return
         }
         
-        console.log('No valid session found after retries, showing login form')
         setIsCheckingAuth(false)
       } catch (error) {
         console.error('Auth check failed:', error)
         retryCount++
         if (retryCount < maxRetries) {
-          console.log(`Auth check failed, retrying in 2 seconds... (${retryCount}/${maxRetries})`)
-          setTimeout(checkAuthStatus, 2000)
+          setTimeout(checkAuthStatus, 500)
           return
         }
         setIsCheckingAuth(false)
       }
     }
     
-    // 增加延迟，给认证状态更多时间更新
-    const timer = setTimeout(checkAuthStatus, 2000)
+    // 减少延迟，快速响应
+    const timer = setTimeout(checkAuthStatus, 300)
     return () => clearTimeout(timer)
-  }, [isClient]) // 移除router依赖，避免无限循环
+  }, [isClient])
 
   const handleProtectedLinkClick = () => {
     if (loginFormRef.current) {
