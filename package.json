@@ -10,7 +10,8 @@
     "lint": "next lint",
     "start": "next start",
     "preview:pages": "npx wrangler pages dev .vercel/output/static",
-    "deploy:pages": "npx wrangler pages deploy .vercel/output/static"
+    "deploy:pages": "npx wrangler pages deploy .vercel/output/static",
+    "upload:r2": "node scripts/upload-to-r2.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -67,6 +68,7 @@
     "zod": "3.25.67"
   },
   "devDependencies": {
+    "@aws-sdk/client-s3": "^3.0.0",
     "@cloudflare/next-on-pages": "^1.13.14",
     "@tailwindcss/postcss": "^4.1.12",
     "@types/node": "^22.17.2",

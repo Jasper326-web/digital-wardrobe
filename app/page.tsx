@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { LoginForm } from "@/components/login-form"
 import { Navigation } from "@/components/navigation"
+import { getBackgroundUrl } from "@/lib/r2-config"
 import { supabase } from "@/lib/supabase"
 import { useLanguage } from "@/lib/lang-context"
 
@@ -117,7 +118,7 @@ export default function HomePage() {
       {/* Background images */}
       <div className="absolute inset-0 opacity-90">
         <img
-          src="/Lucid_Origin_A_stylish_digital_wardrobe_concept_scene_showcasi_2.jpg"
+          src={getBackgroundUrl()}
           alt="Stylish digital wardrobe concept scene"
           className="w-full h-full object-cover object-center"
         />
