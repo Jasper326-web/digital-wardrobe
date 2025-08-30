@@ -26,7 +26,7 @@ export default function HomePage() {
     if (!isClient) return
 
     let retryCount = 0
-    const maxRetries = 3
+    const maxRetries = 5 // 增加重试次数
 
     const checkAuthStatus = async () => {
       try {
@@ -81,8 +81,8 @@ export default function HomePage() {
         // 如果没有找到有效会话，尝试重试
         retryCount++
         if (retryCount < maxRetries) {
-          console.log(`No valid session found, retrying in 1 second... (${retryCount}/${maxRetries})`)
-          setTimeout(checkAuthStatus, 1000)
+          console.log(`No valid session found, retrying in 2 seconds... (${retryCount}/${maxRetries})`)
+          setTimeout(checkAuthStatus, 2000) // 增加重试间隔
           return
         }
         
@@ -92,16 +92,16 @@ export default function HomePage() {
         console.error('Auth check failed:', error)
         retryCount++
         if (retryCount < maxRetries) {
-          console.log(`Auth check failed, retrying in 1 second... (${retryCount}/${maxRetries})`)
-          setTimeout(checkAuthStatus, 1000)
+          console.log(`Auth check failed, retrying in 2 seconds... (${retryCount}/${maxRetries})`)
+          setTimeout(checkAuthStatus, 2000)
           return
         }
         setIsCheckingAuth(false)
       }
     }
     
-    // 添加延迟，避免在OAuth回调过程中立即检查，给认证状态更多时间更新
-    const timer = setTimeout(checkAuthStatus, 1000)
+    // 增加延迟，给认证状态更多时间更新
+    const timer = setTimeout(checkAuthStatus, 2000)
     return () => clearTimeout(timer)
   }, [isClient]) // 移除router依赖，避免无限循环
 

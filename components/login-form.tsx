@@ -68,7 +68,8 @@ export function LoginForm() {
             // 延迟跳转，让用户看到成功提示
             trackEvent('signup_success', { method: 'password' })
             setTimeout(() => {
-              router.replace('/wardrobe')
+              // 强制跳转，确保能成功
+              window.location.href = '/wardrobe'
             }, 1500)
           } else {
             // 需要邮箱验证
@@ -102,7 +103,8 @@ export function LoginForm() {
             // 延迟跳转，让用户看到成功提示
             trackEvent('login_success', { method: 'password' })
             setTimeout(() => {
-              router.replace('/wardrobe')
+              // 强制跳转，确保能成功
+              window.location.href = '/wardrobe'
             }, 1000)
           }
         }
