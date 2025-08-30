@@ -24,12 +24,43 @@ export function LoginForm() {
   const [isResending, setIsResending] = useState(false)
   const [isClient, setIsClient] = useState(false)
   const [authMode, setAuthMode] = useState<"login" | "signup">("login")
+  const [pendingRedirect, setPendingRedirect] = useState(false)
   const { t } = useLanguage()
   const router = useRouter()
 
   useEffect(() => {
     setIsClient(true)
   }, [])
+
+  // 监听认证状态变化，处理待处理的跳转
+  useEffect(() => {
+    if (!pendingRedirect) return
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (event === 'SIGNED_IN' && session && pendingRedirect) {
+          console.log('LoginForm: Auth state confirmed, proceeding with redirect')
+          setPendingRedirect(false)
+          // 使用 window.location 确保强制跳转
+          window.location.href = '/wardrobe'
+        }
+      }
+    )
+
+    // 备用机制：如果3秒内没有收到认证状态变化，强制跳转
+    const fallbackTimer = setTimeout(() => {
+      if (pendingRedirect) {
+        console.log('LoginForm: Fallback redirect triggered')
+        setPendingRedirect(false)
+        window.location.href = '/wardrobe'
+      }
+    }, 3000)
+
+    return () => {
+      subscription.unsubscribe()
+      clearTimeout(fallbackTimer)
+    }
+  }, [pendingRedirect])
 
   // 检查URL参数中的错误信息（保留）
   useEffect(() => {
@@ -68,10 +99,10 @@ export function LoginForm() {
             cache.clear()
             // 设置认证cookie
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
-            // 立即跳转，提供丝滑体验
+            // 记录成功事件
             trackEvent('signup_success', { method: 'password' })
-            // 使用 router 跳转，更优雅
-            router.replace('/wardrobe')
+            // 设置待处理跳转状态
+            setPendingRedirect(true)
           } else {
             // 需要邮箱验证
             setInfoMessage('✅ 注册成功！请检查邮箱并点击验证链接，然后返回登录。')
@@ -101,10 +132,10 @@ export function LoginForm() {
             cache.clear()
             // 设置认证cookie
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
-            // 立即跳转，提供丝滑体验
+            // 记录成功事件
             trackEvent('login_success', { method: 'password' })
-            // 使用 router 跳转，更优雅
-            router.replace('/wardrobe')
+            // 设置待处理跳转状态
+            setPendingRedirect(true)
           }
         }
       }
