@@ -59,15 +59,25 @@ export function LoginForm() {
           // 若项目未开启 email 确认，这里会直接有 session；否则需要验证邮箱
           const session = data.session
           if (session) {
+            // 注册成功且自动登录
+            setInfoMessage('🎉 注册成功！正在为您跳转...')
             // 清除所有缓存，确保新用户看到正确的数据
             cache.clear()
             // 设置认证cookie
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
-            // 立即跳转，减少延迟
+            // 延迟跳转，让用户看到成功提示
             trackEvent('signup_success', { method: 'password' })
-            router.replace('/wardrobe')
+            setTimeout(() => {
+              router.replace('/wardrobe')
+            }, 1500)
           } else {
-            setInfoMessage('Registration successful. Check your email to verify your account.')
+            // 需要邮箱验证
+            setInfoMessage('✅ 注册成功！请检查邮箱并点击验证链接，然后返回登录。')
+            // 切换到登录模式
+            setTimeout(() => {
+              setAuthMode('login')
+              setInfoMessage('请使用您的邮箱和密码登录')
+            }, 3000)
           }
         }
       } else {
@@ -83,13 +93,17 @@ export function LoginForm() {
           }
         } else {
           if (data.session) {
+            // 登录成功
+            setInfoMessage('🎉 登录成功！正在为您跳转...')
             // 清除所有缓存，确保新用户看到正确的数据
             cache.clear()
             // 设置认证cookie
             document.cookie = `dw_auth=1; path=/; max-age=86400; secure; samesite=lax`
-            // 立即跳转，减少延迟
+            // 延迟跳转，让用户看到成功提示
             trackEvent('login_success', { method: 'password' })
-            router.replace('/wardrobe')
+            setTimeout(() => {
+              router.replace('/wardrobe')
+            }, 1000)
           }
         }
       }

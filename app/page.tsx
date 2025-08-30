@@ -100,8 +100,8 @@ export default function HomePage() {
       }
     }
     
-    // 添加延迟，避免在OAuth回调过程中立即检查
-    const timer = setTimeout(checkAuthStatus, 500)
+    // 添加延迟，避免在OAuth回调过程中立即检查，给认证状态更多时间更新
+    const timer = setTimeout(checkAuthStatus, 1000)
     return () => clearTimeout(timer)
   }, [isClient]) // 移除router依赖，避免无限循环
 
