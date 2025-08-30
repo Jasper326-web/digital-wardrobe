@@ -154,6 +154,7 @@ const translations = {
     'analytics.totalItemsCount': '总衣物数',
     'analytics.remainingValue': '剩余价值',
     'analytics.consumedValue': '已消费价值',
+    'analytics.noItemsYet': '还没有衣物',
     
     // 通用
     'common.loading': '加载中...',
@@ -340,6 +341,7 @@ const translations = {
     'analytics.totalItemsCount': 'Total Items',
     'analytics.remainingValue': 'Remaining Value',
     'analytics.consumedValue': 'Consumed Value',
+    'analytics.noItemsYet': 'No items yet',
     
     // Common
     'common.loading': 'Loading...',
