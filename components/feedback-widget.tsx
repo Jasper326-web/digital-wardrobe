@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useMemo, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { MessageSquare, Send, X } from 'lucide-react'
 import { useLanguage } from '@/lib/lang-context'
 import { supabase } from '@/lib/supabase'
@@ -22,6 +23,7 @@ export function FeedbackWidget() {
   const [submitting, setSubmitting] = useState(false)
   const [success, setSuccess] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [isClient, setIsClient] = useState(false)
 
   // 排序更新为最新在上
   const sortedUpdates: UpdateItem[] = useMemo(() => {
@@ -29,6 +31,7 @@ export function FeedbackWidget() {
   }, [])
 
   useEffect(() => {
+    setIsClient(true)
     // 悬停打开，离开后延迟关闭的体验
     let closeTimer: number | undefined
     return () => {
@@ -64,8 +67,8 @@ export function FeedbackWidget() {
     }
   }
 
-  return (
-    <div className="fixed right-4 bottom-6 z-50">
+  const content = (
+    <div className="fixed right-4 bottom-6 z-[9999]">
       {/* 小按钮 */}
       <div
         className="group"
@@ -155,6 +158,10 @@ export function FeedbackWidget() {
       </div>
     </div>
   )
+
+  // 通过 portal 渲染到 body，避免受父层样式影响
+  if (!isClient) return null
+  return createPortal(content, document.body)
 }
 
 

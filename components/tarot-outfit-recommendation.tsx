@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { useLanguage } from '@/lib/lang-context'
 import { Sparkles, Star, Moon, Sun, Zap } from 'lucide-react'
+import { supabase } from '@/lib/supabase'
 
 interface TarotCard {
   name: string
@@ -202,6 +203,7 @@ export function TarotOutfitRecommendation() {
   const [drawnCard, setDrawnCard] = useState<TarotCard | null>(null)
   const [isDrawing, setIsDrawing] = useState(false)
   const [recommendation, setRecommendation] = useState<any>(null)
+  const [wardrobeNames, setWardrobeNames] = useState<string[]>([])
 
   const handleZodiacSelect = (zodiac: string) => {
     setSelectedZodiac(zodiac)
@@ -209,20 +211,33 @@ export function TarotOutfitRecommendation() {
     setRecommendation(null)
   }
 
-  const drawTarotCard = () => {
+  const drawTarotCard = async () => {
     if (!selectedZodiac) return
     
     setIsDrawing(true)
-    
-    // 模拟抽牌动画
-    setTimeout(() => {
-      const randomCard = tarotCards[Math.floor(Math.random() * tarotCards.length)]
-      setDrawnCard(randomCard)
-      setIsDrawing(false)
-      
-      // 生成推荐
-      generateRecommendation(randomCard, selectedZodiac)
-    }, 2000)
+    // 拉取用户衣橱物品名称
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data } = await supabase
+          .from('clothing_items')
+          .select('name')
+          .eq('user_id', user.id)
+          .limit(200)
+        setWardrobeNames((data || []).map((d: any) => d.name))
+      } else {
+        setWardrobeNames([])
+      }
+    } catch {
+      setWardrobeNames([])
+    }
+
+    // 直接生成结果
+    const randomCard = tarotCards[Math.floor(Math.random() * tarotCards.length)]
+    setDrawnCard(randomCard)
+    // 生成推荐
+    generateRecommendation(randomCard, selectedZodiac)
+    setIsDrawing(false)
   }
 
   const generateRecommendation = (card: TarotCard, zodiacName: string) => {
@@ -233,6 +248,12 @@ export function TarotOutfitRecommendation() {
     const combinedColors = [...new Set([...card.colors, ...zodiac.luckyColors])]
     const style = `${card.outfitStyle}，结合${zodiac.style}`
     
+    // 从衣橱按名称关键词匹配（颜色/风格关键词）
+    const keywords = [...combinedColors, card.name, zodiac.name]
+    const matched = wardrobeNames.filter(n =>
+      keywords.some(k => n?.toLowerCase().includes(String(k).toLowerCase()))
+    ).slice(0, 6)
+    
     const recommendation = {
       card: card,
       zodiac: zodiac,
@@ -240,7 +261,8 @@ export function TarotOutfitRecommendation() {
       recommendedColors: combinedColors.slice(0, 4),
       mood: card.mood,
       advice: `${card.advice}，同时考虑${zodiac.name}的${zodiac.traits[0]}特质。`,
-      luckyElements: [card.name, zodiac.element]
+      luckyElements: [card.name, zodiac.element],
+      matchedItems: matched
     }
     
     setRecommendation(recommendation)
@@ -423,6 +445,20 @@ export function TarotOutfitRecommendation() {
                   </div>
                 </div>
               </div>
+
+              {/* 衣橱匹配单品（基于名称关键词） */}
+              {!!recommendation.matchedItems?.length && (
+                <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-4 rounded-lg">
+                  <h4 className="font-semibold text-gray-900 mb-2">👗 衣橱推荐匹配</h4>
+                  <div className="flex flex-wrap gap-2">
+                    {recommendation.matchedItems.map((name: string) => (
+                      <Badge key={name} variant="outline" className="text-xs">
+                        {name}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
