@@ -43,7 +43,6 @@ export function UpdateAnnouncement() {
   const [currentIndex, setCurrentIndex] = useState(0)
   const [isVisible, setIsVisible] = useState(true)
   const [isPaused, setIsPaused] = useState(false)
-  const [externalUpdates, setExternalUpdates] = useState<UpdateItem[] | null>(null)
 
   // 自动轮播
   useEffect(() => {
@@ -55,21 +54,6 @@ export function UpdateAnnouncement() {
 
     return () => clearInterval(timer)
   }, [isPaused, isVisible])
-
-  // 读取外部更新 JSON（如存在则覆盖本地）
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const res = await fetch('/updates.json', { cache: 'no-store' })
-        if (!res.ok) return
-        const data = await res.json()
-        if (Array.isArray(data) && data.length) {
-          setExternalUpdates(data)
-        }
-      } catch {}
-    }
-    load()
-  }, [])
 
   // 从本地存储检查是否已关闭
   useEffect(() => {
@@ -94,8 +78,7 @@ export function UpdateAnnouncement() {
 
   if (!isVisible) return null
 
-  const data = externalUpdates && externalUpdates.length ? externalUpdates : updates
-  const currentUpdate = data[currentIndex % data.length]
+  const currentUpdate = updates[currentIndex]
 
   const getTypeColor = (type: string) => {
     switch (type) {
@@ -155,7 +138,7 @@ export function UpdateAnnouncement() {
             
             {/* 指示器 */}
             <div className="flex space-x-1">
-              {data.map((_, index) => (
+              {updates.map((_, index) => (
                 <button
                   key={index}
                   onClick={() => setCurrentIndex(index)}
