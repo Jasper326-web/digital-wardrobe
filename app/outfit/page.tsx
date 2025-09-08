@@ -8,6 +8,7 @@ import { LazyOutfitSummary } from "@/components/lazy-loading"
 import { SuccessModal } from "@/components/success-modal"
 import { PageHeader } from "@/components/page-header"
 import { LoadingSpinner } from "@/components/loading-spinner"
+import { TarotOutfitRecommendation } from "@/components/tarot-outfit-recommendation"
 import { useToast } from "@/hooks/use-toast"
 import { getClothingItems, updateClothingItem } from "@/lib/database"
 import { checkSupabaseConnection } from "@/lib/supabase"
@@ -36,6 +37,7 @@ export default function OutfitPage() {
     shoes?: ClothingItem
   }>({})
   const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const [showTarotRecommendation, setShowTarotRecommendation] = useState(false)
 
   const { toast } = useToast()
 
@@ -222,21 +224,41 @@ export default function OutfitPage() {
             </div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-16">
-            {/* Left Side - Item Selector */}
-            <div className="lg:col-span-3">
-              <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
-                <div className="mb-4">
-                  <h2 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent mb-2">{t('outfit.selectItems')}</h2>
-                  <div className="w-12 h-0.5 bg-gradient-to-r from-emerald-400 to-blue-500 rounded-full"></div>
+          <>
+            {/* 塔罗牌推荐区域 */}
+            {showTarotRecommendation && (
+              <div className="mb-8">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-6 border border-white/20">
+                  <TarotOutfitRecommendation />
                 </div>
-                <LazyOutfitSelector 
-                  items={items}
-                  selectedItems={selectedItems} 
-                  onItemSelect={handleItemSelect} 
-                />
               </div>
+            )}
+
+            {/* 塔罗牌切换按钮 */}
+            <div className="mb-6 text-center">
+              <button
+                onClick={() => setShowTarotRecommendation(!showTarotRecommendation)}
+                className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-500 text-white rounded-full font-medium hover:from-purple-600 hover:to-pink-600 transition-all duration-300 shadow-lg hover:shadow-xl"
+              >
+                {showTarotRecommendation ? '🔮 隐藏塔罗牌推荐' : '🔮 获取塔罗牌穿搭推荐'}
+              </button>
             </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 mb-16">
+              {/* Left Side - Item Selector */}
+              <div className="lg:col-span-3">
+                <div className="bg-white/10 backdrop-blur-sm rounded-xl p-8 border border-white/20">
+                  <div className="mb-4">
+                    <h2 className="text-xl font-bold bg-gradient-to-r from-emerald-400 to-blue-500 bg-clip-text text-transparent mb-2">{t('outfit.selectItems')}</h2>
+                    <div className="w-12 h-0.5 bg-gradient-to-r from-emerald-400 to-blue-500 rounded-full"></div>
+                  </div>
+                  <LazyOutfitSelector 
+                    items={items}
+                    selectedItems={selectedItems} 
+                    onItemSelect={handleItemSelect} 
+                  />
+                </div>
+              </div>
 
             {/* Right Side - Mannequin & Summary */}
             <div className="lg:col-span-2 space-y-6">
@@ -274,6 +296,7 @@ export default function OutfitPage() {
               </div>
             </div>
           </div>
+        </>
         )}
       </main>
 

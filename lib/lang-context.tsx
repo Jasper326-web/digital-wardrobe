@@ -192,7 +192,20 @@ const translations = {
     'modal.addNewItem': '新增衣物',
     
     // 连接提示
-    'common.connecting': '正在连接数据库并获取数据...'
+    'common.connecting': '正在连接数据库并获取数据...',
+    
+    // 更新说明
+    'updates.latest': '最新更新',
+    // 反馈
+    'feedback.title': '反馈与建议',
+    'feedback.placeholder': '请告诉我们你遇到的问题或改进建议…',
+    'feedback.emailPlaceholder': '邮箱（选填，便于联系你）',
+    'feedback.submit': '提交反馈',
+    'feedback.submitting': '提交中…',
+    'feedback.success': '已收到你的反馈，感谢！',
+    'feedback.errorSubmit': '提交失败，请稍后再试。',
+    'feedback.errorEmpty': '请先填写反馈内容。',
+    'feedback.updates': '更新说明'
   },
   en: {
     // Home page
@@ -379,7 +392,20 @@ const translations = {
     'modal.addNewItem': 'Add New Item',
     
     // Connecting subtext
-    'common.connecting': 'Connecting to database and fetching your data'
+    'common.connecting': 'Connecting to database and fetching your data',
+    
+    // Updates
+    'updates.latest': 'Latest Updates',
+    // Feedback
+    'feedback.title': 'Feedback',
+    'feedback.placeholder': 'Tell us what went wrong or how we can improve…',
+    'feedback.emailPlaceholder': 'Email (optional, for follow-up)',
+    'feedback.submit': 'Send Feedback',
+    'feedback.submitting': 'Submitting…',
+    'feedback.success': 'Thanks! Your feedback has been received.',
+    'feedback.errorSubmit': 'Failed to submit. Please try again later.',
+    'feedback.errorEmpty': 'Please enter your feedback first.',
+    'feedback.updates': 'Release notes'
   }
 }
 

@@ -5,6 +5,7 @@ import "./globals.css"
 import { LanguageProvider } from "@/lib/lang-context"
 import Script from "next/script"
 import { PreloadManager } from "@/components/preload-manager"
+import { FeedbackWidget } from "@/components/feedback-widget"
 
 const playfair = Playfair_Display({
   subsets: ["latin"],
@@ -50,6 +51,7 @@ export default function RootLayout({
           <PreloadManager>
             {children}
           </PreloadManager>
+          <FeedbackWidget />
         </LanguageProvider>
       </body>
     </html>
