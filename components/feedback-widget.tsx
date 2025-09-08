@@ -65,7 +65,7 @@ export function FeedbackWidget() {
   }
 
   return (
-    <div className="fixed right-4 top-1/3 z-50">
+    <div className="fixed right-4 bottom-6 z-50">
       {/* 小按钮 */}
       <div
         className="group"
@@ -81,8 +81,8 @@ export function FeedbackWidget() {
 
         {/* 展开面板 */}
         <div
-          className={`mt-3 w-[340px] max-w-[80vw] bg-white rounded-xl shadow-xl border border-emerald-100 overflow-hidden transform transition-all duration-200 origin-top-right ${
-            isOpen ? 'opacity-100 translate-y-0 visible' : 'opacity-0 -translate-y-2 invisible'
+          className={`mb-3 w-[340px] max-w-[80vw] bg-white rounded-xl shadow-xl border border-emerald-100 overflow-hidden transform transition-all duration-200 origin-bottom-right ${
+            isOpen ? 'opacity-100 translate-y-0 visible' : 'opacity-0 translate-y-2 invisible'
           }`}
         >
           {/* Header */}

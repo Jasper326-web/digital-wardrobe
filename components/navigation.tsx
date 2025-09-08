@@ -82,7 +82,7 @@ export function Navigation({ onProtectedLinkClick }: NavigationProps) {
     <>
       {/* 更新说明栏移至反馈组件内，始终可见 */}
       
-      <nav className={`absolute left-0 right-0 z-20 bg-transparent ${isLoggedIn ? 'top-16' : 'top-0'}`}>
+      <nav className={`absolute left-0 right-0 z-20 bg-transparent top-0`}>
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
