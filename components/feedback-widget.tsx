@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { MessageSquare, Send, X } from 'lucide-react'
 import { useLanguage } from '@/lib/lang-context'
 import { supabase } from '@/lib/supabase'
-import { updates, type UpdateItem } from '@/components/update-announcement'
+import { updates, type UpdateItem } from '@/components/updates-shared'
 
 interface FeedbackPayload {
   message: string
